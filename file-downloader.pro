@@ -17,13 +17,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     main.cpp \
-    libs/GUI/MainWindow.cpp
+    libs/GUI/DownloadDetailsWidget.cpp \
+    libs/GUI/MainWindow.cpp \
+    libs/GUI/SettingsDialog.cpp
 
 HEADERS += \
-    libs/GUI/MainWindow.h
+    libs/GUI/DownloadDetailsWidget.h \
+    libs/GUI/MainWindow.h \
+    libs/GUI/SettingsDialog.h
 
 FORMS += \
-    views/MainWindow.ui
+    views/DownloadDetailsWidget.ui \
+    views/MainWindow.ui \
+    views/SettingsDialog.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

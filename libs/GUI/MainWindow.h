@@ -2,6 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QList>
+
+#include "DownloadDetailsWidget.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -14,6 +17,12 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+protected:
+    void initialize();
+    void addElementToDownload(QString filename, QString blobType, QString fileSize, QString downloadURI);
+
+    QList<DownloadDetailsWidget*> *downloadsDetails;
 
 private:
     Ui::MainWindow *ui;
