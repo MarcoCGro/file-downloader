@@ -11,6 +11,11 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::initialize()
 {
+    ui->toolBar->setIconSize(QSize(50, 50));
+    ui->toolBar->setMovable(false);
+
+    this->settingsDialog = new SettingsDialog(this);
+
     ui->tableWidget->setColumnCount(1);
 
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
@@ -30,6 +35,15 @@ void MainWindow::addElementToDownload(QString filename, QString blobType, QStrin
     ui->tableWidget->insertRow(k);
     ui->tableWidget->setRowHeight(k, curr->height());
     ui->tableWidget->setCellWidget(k, 0, curr);
+}
+
+void MainWindow::on_actionRequest_triggered()
+{
+}
+
+void MainWindow::on_actionSettings_triggered()
+{
+    this->settingsDialog->show();
 }
 
 MainWindow::~MainWindow()

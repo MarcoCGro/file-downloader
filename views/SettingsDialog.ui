@@ -17,7 +17,7 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QLabel" name="label_2">
+      <widget class="QLabel" name="filesUriLabel">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
@@ -26,29 +26,30 @@
         </font>
        </property>
        <property name="text">
-        <string>TextLabel</string>
+        <string>Request URI</string>
        </property>
       </widget>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout">
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>TextLabel</string>
-         </property>
-         <property name="textFormat">
-          <enum>Qt::PlainText</enum>
-         </property>
-         <property name="textInteractionFlags">
-          <set>Qt::LinksAccessibleByMouse|Qt::TextEditable</set>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QLineEdit" name="filesUriEdit"/>
+         </item>
+         <item>
+          <widget class="QToolButton" name="syncButton">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </item>
      <item>
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="directoryLabel">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
@@ -57,27 +58,17 @@
         </font>
        </property>
        <property name="text">
-        <string>TextLabel</string>
+        <string>Downloads directory</string>
        </property>
       </widget>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>TextLabel</string>
-         </property>
-         <property name="textFormat">
-          <enum>Qt::PlainText</enum>
-         </property>
-         <property name="textInteractionFlags">
-          <set>Qt::LinksAccessibleByMouse|Qt::TextEditable</set>
-         </property>
-        </widget>
+        <widget class="QLineEdit" name="directoryEdit"/>
        </item>
        <item>
-        <widget class="QToolButton" name="toolButton">
+        <widget class="QToolButton" name="directoryButton">
          <property name="text">
           <string>...</string>
          </property>
@@ -98,8 +89,28 @@
     </widget>
    </item>
   </layout>
+  <action name="actionDirectory">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/icons/folder_icon.png</normaloff>:/icons/folder_icon.png</iconset>
+   </property>
+   <property name="text">
+    <string>Directory</string>
+   </property>
+  </action>
+  <action name="actionSync">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/icons/sync_icon.png</normaloff>:/icons/sync_icon.png</iconset>
+   </property>
+   <property name="text">
+    <string>Sync</string>
+   </property>
+  </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="../resources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>

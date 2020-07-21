@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QList>
 
+#include "SettingsDialog.h"
 #include "DownloadDetailsWidget.h"
 
 QT_BEGIN_NAMESPACE
@@ -22,7 +23,12 @@ protected:
     void initialize();
     void addElementToDownload(QString filename, QString blobType, QString fileSize, QString downloadURI);
 
+    SettingsDialog *settingsDialog;
     QList<DownloadDetailsWidget*> *downloadsDetails;
+
+private slots:
+    void on_actionRequest_triggered();
+    void on_actionSettings_triggered();
 
 private:
     Ui::MainWindow *ui;
