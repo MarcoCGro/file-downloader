@@ -23,7 +23,9 @@ public:
 
 protected:
     void initialize();
+
     bool validateFolder(QString chosenFolder);
+    bool validateUrl(QString url);
 
     QString currentFilesUrl;
     QString currentDownloadsDirectory;

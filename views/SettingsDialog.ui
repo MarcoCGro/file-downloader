@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
+  <property name="toolTip">
+   <string/>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -35,7 +38,11 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
-          <widget class="QLineEdit" name="filesUrlEdit"/>
+          <widget class="QLineEdit" name="filesUrlEdit">
+           <property name="toolTip">
+            <string/>
+           </property>
+          </widget>
          </item>
          <item>
           <widget class="QToolButton" name="syncButton">
@@ -65,7 +72,17 @@
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
-        <widget class="QLineEdit" name="directoryEdit"/>
+        <widget class="QLineEdit" name="directoryEdit">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="toolTip">
+          <string>Press the folder icon to change this value</string>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QToolButton" name="directoryButton">

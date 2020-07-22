@@ -45,13 +45,10 @@ bool SettingsDialog::validateFolder(QString chosenFolder)
 
     QFileInfo currDir(chosenFolder);
     if (currDir.exists()) {
-        if (currDir.permission(QFile::WriteUser)) {
-            ui->directoryEdit->setText(chosenFolder);
+        if (currDir.permission(QFile::WriteUser))
             valid = true;
-        }
-        else {
+        else
             showMessage("You aren't allowed to write on selected option. Try another folder.");
-        }
     }
     else {
         showMessage("Directory selected doesn't exist. Try another folder.");
@@ -60,16 +57,25 @@ bool SettingsDialog::validateFolder(QString chosenFolder)
     return valid;
 }
 
+bool SettingsDialog::validateUrl(QString url)
+{
+    this->networkRequester->validateEndpoint(url);
+
+    bool result = this->networkRequester->isValidEndpoint();
+    if (!result)
+        showMessage(this->networkRequester->getCurrentMessage(), QMessageBox::Critical);
+
+    return result;
+}
+
 void SettingsDialog::on_syncButton_clicked()
 {
     if (this->networkRequester == nullptr)
         return;
 
-    this->networkRequester->validateEndpoint(ui->filesUrlEdit->text());
-    if (this->networkRequester->isValidEndpoint())
+    bool valid = validateUrl(ui->filesUrlEdit->text());
+    if (valid)
         showMessage(this->networkRequester->getCurrentMessage(), QMessageBox::Information);
-    else
-        showMessage(this->networkRequester->getCurrentMessage(), QMessageBox::Critical);
 }
 
 void SettingsDialog::on_directoryButton_clicked()
@@ -81,7 +87,9 @@ void SettingsDialog::on_directoryButton_clicked()
 
     if (this->fileDialog.result() == QDialog::Accepted) {
         QString chosenFolder = this->fileDialog.directory().path();
-        validateFolder(chosenFolder);
+        bool valid = validateFolder(chosenFolder);
+        if (valid)
+            ui->directoryEdit->setText(chosenFolder);
     }
 
     qt_ntfs_permission_lookup--; // turn checking off
@@ -89,13 +97,15 @@ void SettingsDialog::on_directoryButton_clicked()
 
 void SettingsDialog::accept()
 {
-    QString chosenFolder = ui->directoryEdit->text();
-    bool valid = validateFolder(chosenFolder);
+    bool valid = validateFolder(ui->directoryEdit->text());
     if (valid) {
-        this->currentFilesUrl = ui->filesUrlEdit->text();
-        this->currentDownloadsDirectory = ui->directoryEdit->text();
+        valid = validateUrl(ui->filesUrlEdit->text());
+        if (valid) {
+            this->currentFilesUrl = ui->filesUrlEdit->text();
+            this->currentDownloadsDirectory = ui->directoryEdit->text();
 
-        this->done(0);
+            this->done(0);
+        }
     }
 }
 
