@@ -42,6 +42,7 @@ void MainWindow::addElementToDownload(QString filename, QString blobType, QStrin
 
 void MainWindow::on_actionRequest_triggered()
 {
+
 }
 
 void MainWindow::on_actionSettings_triggered()

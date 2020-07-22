@@ -46,6 +46,9 @@
          </item>
          <item>
           <widget class="QToolButton" name="syncButton">
+           <property name="toolTip">
+            <string>Verify your URL</string>
+           </property>
            <property name="text">
             <string>...</string>
            </property>

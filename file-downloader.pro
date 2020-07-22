@@ -16,16 +16,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    libs/Web/NetworkRequester.cpp \
     main.cpp \
     libs/GUI/DownloadDetailsWidget.cpp \
     libs/GUI/MainWindow.cpp \
-    libs/GUI/SettingsDialog.cpp
+    libs/GUI/SettingsDialog.cpp \
+    libs/Web/JsonValidator.cpp \
+    libs/Web/NetworkRequester.cpp
 
 HEADERS += \
     libs/GUI/DownloadDetailsWidget.h \
     libs/GUI/MainWindow.h \
     libs/GUI/SettingsDialog.h \
+    libs/Web/JsonValidator.h \
     libs/Web/NetworkRequester.h
 
 FORMS += \
