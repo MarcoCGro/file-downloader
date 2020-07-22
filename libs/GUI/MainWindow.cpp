@@ -7,6 +7,9 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     initialize();
+
+    this->networkRequester = new NetworkRequester;
+    this->settingsDialog->setNetworkRequester(this->networkRequester);
 }
 
 void MainWindow::initialize()
@@ -50,9 +53,14 @@ MainWindow::~MainWindow()
 {
     delete ui;
 
-    if (this->downloadsDetails != 0) {
+    if (this->downloadsDetails != nullptr) {
         this->downloadsDetails->clear();
         this->downloadsDetails->~QList();
-        this->downloadsDetails = 0;
+        this->downloadsDetails = nullptr;
+    }
+
+    if (this->networkRequester != nullptr) {
+        delete this->networkRequester;
+        this->networkRequester = nullptr;
     }
 }

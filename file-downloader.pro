@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -16,6 +16,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    libs/Web/NetworkRequester.cpp \
     main.cpp \
     libs/GUI/DownloadDetailsWidget.cpp \
     libs/GUI/MainWindow.cpp \
@@ -24,7 +25,8 @@ SOURCES += \
 HEADERS += \
     libs/GUI/DownloadDetailsWidget.h \
     libs/GUI/MainWindow.h \
-    libs/GUI/SettingsDialog.h
+    libs/GUI/SettingsDialog.h \
+    libs/Web/NetworkRequester.h
 
 FORMS += \
     views/DownloadDetailsWidget.ui \

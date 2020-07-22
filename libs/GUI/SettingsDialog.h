@@ -5,6 +5,8 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
+#include "libs/Web/NetworkRequester.h"
+
 namespace Ui {
 class SettingsDialog;
 }
@@ -14,16 +16,16 @@ class SettingsDialog : public QDialog
     Q_OBJECT
 
 public:
-    const QString FilesEndpointUri = "https://altomobile.blob.core.windows.net/api/files.json";
-
     explicit SettingsDialog(QWidget *parent = nullptr);
     ~SettingsDialog();
+
+    void setNetworkRequester(NetworkRequester *networkRequester);
 
 protected:
     void initialize();
     bool validateFolder(QString chosenFolder);
 
-    QString currentFilesUri;
+    QString currentFilesUrl;
     QString currentDownloadsDirectory;
 
 private slots:
@@ -33,11 +35,16 @@ private slots:
     virtual void accept();
     virtual void reject();
 
+protected:
+    NetworkRequester *networkRequester;
+
 private:
-    Ui::SettingsDialog *ui;
+    void showMessage(QString message, QMessageBox::Icon msgType = QMessageBox::Warning);
 
     QFileDialog fileDialog;
     QMessageBox messageBox;
+
+    Ui::SettingsDialog *ui;
 };
 
 #endif // SETTINGSDIALOG_H

@@ -7,6 +7,8 @@
 #include "SettingsDialog.h"
 #include "DownloadDetailsWidget.h"
 
+#include "libs/Web/NetworkRequester.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -25,6 +27,8 @@ protected:
 
     SettingsDialog *settingsDialog;
     QList<DownloadDetailsWidget*> *downloadsDetails;
+
+    NetworkRequester *networkRequester;
 
 private slots:
     void on_actionRequest_triggered();

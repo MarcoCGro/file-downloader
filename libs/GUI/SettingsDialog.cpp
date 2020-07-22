@@ -9,11 +9,18 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     initialize();
+
+    this->networkRequester = nullptr;
 }
 
 SettingsDialog::~SettingsDialog()
 {
     delete ui;
+}
+
+void SettingsDialog::setNetworkRequester(NetworkRequester *networkRequester)
+{
+    this->networkRequester = networkRequester;
 }
 
 void SettingsDialog::initialize()
@@ -22,16 +29,14 @@ void SettingsDialog::initialize()
     ui->directoryButton->setIcon(ui->actionDirectory->icon());
     ui->syncButton->setIcon(ui->actionSync->icon());
 
-    this->currentFilesUri = this->FilesEndpointUri;
-    ui->filesUriEdit->setText(this->currentFilesUri);
+    this->currentFilesUrl = "https://altomobile.blob.core.windows.net/api/files.json";
+    ui->filesUrlEdit->setText(this->currentFilesUrl);
     this->currentDownloadsDirectory = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
     ui->directoryEdit->setText(this->currentDownloadsDirectory);
 
     this->fileDialog.setDirectory(this->currentDownloadsDirectory);
     this->fileDialog.setFileMode(QFileDialog::DirectoryOnly);
     this->fileDialog.setOption(QFileDialog::ShowDirsOnly, true);
-
-    this->messageBox.setIcon(QMessageBox::Warning);
 }
 
 bool SettingsDialog::validateFolder(QString chosenFolder)
@@ -45,13 +50,11 @@ bool SettingsDialog::validateFolder(QString chosenFolder)
             valid = true;
         }
         else {
-            this->messageBox.setText("You aren't allowed to write on selected option. Try another folder.");
-            this->messageBox.show();
+            showMessage("You aren't allowed to write on selected option. Try another folder.");
         }
     }
     else {
-        this->messageBox.setText("Directory selected doesn't exist. Try another folder.");
-        this->messageBox.show();
+        showMessage("Directory selected doesn't exist. Try another folder.");
     }
 
     return valid;
@@ -59,7 +62,14 @@ bool SettingsDialog::validateFolder(QString chosenFolder)
 
 void SettingsDialog::on_syncButton_clicked()
 {
-    qDebug("sync \n");
+    if (this->networkRequester == nullptr)
+        return;
+
+    this->networkRequester->validateEndpoint(ui->filesUrlEdit->text());
+    if (this->networkRequester->isValidEndpoint())
+        showMessage(this->networkRequester->getCurrentMessage(), QMessageBox::Information);
+    else
+        showMessage(this->networkRequester->getCurrentMessage(), QMessageBox::Critical);
 }
 
 void SettingsDialog::on_directoryButton_clicked()
@@ -82,7 +92,7 @@ void SettingsDialog::accept()
     QString chosenFolder = ui->directoryEdit->text();
     bool valid = validateFolder(chosenFolder);
     if (valid) {
-        this->currentFilesUri = ui->filesUriEdit->text();
+        this->currentFilesUrl = ui->filesUrlEdit->text();
         this->currentDownloadsDirectory = ui->directoryEdit->text();
 
         this->done(0);
@@ -91,8 +101,15 @@ void SettingsDialog::accept()
 
 void SettingsDialog::reject()
 {
-    ui->filesUriEdit->setText(this->currentFilesUri);
+    ui->filesUrlEdit->setText(this->currentFilesUrl);
     ui->directoryEdit->setText(this->currentDownloadsDirectory);
 
     this->done(0);
+}
+
+void SettingsDialog::showMessage(QString message, QMessageBox::Icon msgType)
+{
+    this->messageBox.setIcon(msgType);
+    this->messageBox.setText(message);
+    this->messageBox.show();
 }

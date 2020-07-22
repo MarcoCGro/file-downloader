@@ -17,7 +17,7 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QLabel" name="filesUriLabel">
+      <widget class="QLabel" name="filesUrlLabel">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
@@ -35,7 +35,7 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
-          <widget class="QLineEdit" name="filesUriEdit"/>
+          <widget class="QLineEdit" name="filesUrlEdit"/>
          </item>
          <item>
           <widget class="QToolButton" name="syncButton">
