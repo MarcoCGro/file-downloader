@@ -20,6 +20,7 @@ SOURCES += \
     libs/GUI/DownloadDetailsWidget.cpp \
     libs/GUI/MainWindow.cpp \
     libs/GUI/SettingsDialog.cpp \
+    libs/Web/DownloadDetails.cpp \
     libs/Web/JsonValidator.cpp \
     libs/Web/NetworkRequester.cpp
 
@@ -27,6 +28,7 @@ HEADERS += \
     libs/GUI/DownloadDetailsWidget.h \
     libs/GUI/MainWindow.h \
     libs/GUI/SettingsDialog.h \
+    libs/Web/DownloadDetails.h \
     libs/Web/JsonValidator.h \
     libs/Web/NetworkRequester.h
 

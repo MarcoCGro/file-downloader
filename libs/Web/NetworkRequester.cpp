@@ -6,9 +6,12 @@ NetworkRequester::NetworkRequester(QObject *parent)
     this->manager = new QNetworkAccessManager(this);
     this->reply = nullptr;
 
+    this->downloadsDetailsList.clear();
     this->jsonValidator = new JsonValidator(JSON_FIELDS);
 
-    this->validEndpoint = false;
+    this->currentContent = "";
+
+    this->validRequest = false;
     this->currentMessage = "";
 }
 
@@ -28,9 +31,11 @@ NetworkRequester::~NetworkRequester()
         delete this->jsonValidator;
         this->jsonValidator = 0;
     }
+
+    this->downloadsDetailsList.clear();
 }
 
-void NetworkRequester::getFilesDetails(QString url)
+void NetworkRequester::requestFilesDetails(QString url)
 {
     this->request.setUrl(QUrl(url));
     this->reply = this->manager->get(request);
@@ -39,8 +44,25 @@ void NetworkRequester::getFilesDetails(QString url)
     connect(this->reply, &QNetworkReply::finished, this, &NetworkRequester::filesDetailsFinished);
 }
 
+QList<DownloadDetails> NetworkRequester::getDownloadsDetailsList() const
+{
+    return this->downloadsDetailsList;
+}
+
 void NetworkRequester::filesDetailsReadyRead()
 {
+    verifyResult();
+    this->downloadsDetailsList.clear();
+
+    if (this->validRequest) {
+        QJsonArray jsonArray = this->jsonValidator->jsonFromString(this->currentContent, &this->validRequest);
+
+        for (int i = 0; i < jsonArray.count(); i++) {
+            DownloadDetails currentDetails(jsonArray.at(i).toObject());
+            this->downloadsDetailsList.push_back(currentDetails);
+            currentDetails.printData();
+        }
+    }
 }
 
 void NetworkRequester::filesDetailsFinished()
@@ -49,7 +71,7 @@ void NetworkRequester::filesDetailsFinished()
     this->reply = nullptr;
 }
 
-void NetworkRequester::validateEndpoint(QString url)
+void NetworkRequester::validateRequest(QString url)
 {
     this->request.setUrl(QUrl(url));
     this->reply = this->manager->get(request);
@@ -63,23 +85,32 @@ void NetworkRequester::validateEndpoint(QString url)
 
 void NetworkRequester::verificationFinished()
 {
+    verifyResult();
+
+    this->reply->deleteLater();
+    this->reply = nullptr;
+}
+
+void NetworkRequester::verifyResult()
+{
     if (this->reply->error() == QNetworkReply::NoError) {
-        if (validContent(this->reply->readAll())) {
-            this->validEndpoint = true;
+        this->currentContent = this->reply->readAll();
+
+        if (validContent(this->currentContent)) {
+            this->validRequest = true;
             this->currentMessage = "The specified URL is valid.";
         }
         else {
-            this->validEndpoint = false;
+            this->validRequest = false;
             this->currentMessage = "The JSON file content is invalid.";
         }
     }
     else {
-        this->validEndpoint = false;
+        this->currentContent = "";
+
+        this->validRequest = false;
         this->currentMessage = "Something went wrong. Please verify the specified URL and try again.";
     }
-
-    this->reply->deleteLater();
-    this->reply = nullptr;
 }
 
 bool NetworkRequester::validContent(QString content)
@@ -90,9 +121,9 @@ bool NetworkRequester::validContent(QString content)
     return isValidJson;
 }
 
-bool NetworkRequester::isValidEndpoint()
+bool NetworkRequester::isValidRequest()
 {
-    return this->validEndpoint;
+    return this->validRequest;
 }
 
 QString NetworkRequester::getCurrentMessage()

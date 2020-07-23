@@ -3,6 +3,7 @@
 
 #include <QtNetwork>
 #include "JsonValidator.h"
+#include "DownloadDetails.h"
 
 class NetworkRequester : public QObject
 {
@@ -14,20 +15,12 @@ public:
     NetworkRequester(QObject *parent = nullptr);
     ~NetworkRequester();
 
-    void getFilesDetails(QString url);
+    void requestFilesDetails(QString url);
+    QList<DownloadDetails> getDownloadsDetailsList() const;
 
-    void validateEndpoint(QString url);
-    bool isValidEndpoint();
+    void validateRequest(QString url);
+    bool isValidRequest();
     QString getCurrentMessage();
-
-protected:
-    bool validContent(QString content);
-
-    QNetworkAccessManager *manager;
-    QNetworkRequest request;
-    QNetworkReply *reply;
-
-    JsonValidator *jsonValidator;
 
 protected slots:
     void filesDetailsReadyRead();
@@ -35,8 +28,20 @@ protected slots:
 
     void verificationFinished();
 
-private:
-    bool validEndpoint;
+protected:
+    void verifyResult();
+    bool validContent(QString content);
+
+    QNetworkAccessManager *manager;
+    QNetworkRequest request;
+    QNetworkReply *reply;
+
+    QList<DownloadDetails> downloadsDetailsList;
+    JsonValidator *jsonValidator;
+
+    QString currentContent;
+
+    bool validRequest;
     QString currentMessage;
 };
 

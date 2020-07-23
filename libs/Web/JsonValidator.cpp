@@ -38,7 +38,7 @@ QJsonArray JsonValidator::jsonFromString(QString &content, bool *valid)
 bool JsonValidator::containsValidFields(QJsonObject obj)
 {
     for (int i = 0; i < this->validFields.count(); i++) {
-        if ( obj[this->validFields.at(i)] == "" )
+        if ( obj[this->validFields.at(i)].toString() == "" )
             return false;
     }
 

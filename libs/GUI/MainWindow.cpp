@@ -8,7 +8,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     initialize();
 
-    this->networkRequester = new NetworkRequester;
+    this->networkRequester = new NetworkRequester(this);
     this->settingsDialog->setNetworkRequester(this->networkRequester);
 }
 
@@ -42,7 +42,7 @@ void MainWindow::addElementToDownload(QString filename, QString blobType, QStrin
 
 void MainWindow::on_actionRequest_triggered()
 {
-
+    this->networkRequester->requestFilesDetails(this->settingsDialog->getFilesUrl());
 }
 
 void MainWindow::on_actionSettings_triggered()
@@ -56,7 +56,7 @@ MainWindow::~MainWindow()
 
     if (this->downloadsDetails != nullptr) {
         this->downloadsDetails->clear();
-        this->downloadsDetails->~QList();
+        delete this->downloadsDetails;
         this->downloadsDetails = nullptr;
     }
 

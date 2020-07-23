@@ -21,6 +21,9 @@ public:
 
     void setNetworkRequester(NetworkRequester *networkRequester);
 
+    QString getFilesUrl() const;
+    QString getDownloadsDirectory() const;
+
 protected:
     void initialize();
 

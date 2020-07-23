@@ -23,6 +23,16 @@ void SettingsDialog::setNetworkRequester(NetworkRequester *networkRequester)
     this->networkRequester = networkRequester;
 }
 
+QString SettingsDialog::getFilesUrl() const
+{
+    return this->currentFilesUrl;
+}
+
+QString SettingsDialog::getDownloadsDirectory() const
+{
+    return this->currentDownloadsDirectory;
+}
+
 void SettingsDialog::initialize()
 {
     this->resize(this->width(), 150);
@@ -59,9 +69,9 @@ bool SettingsDialog::validateFolder(QString chosenFolder)
 
 bool SettingsDialog::validateUrl(QString url)
 {
-    this->networkRequester->validateEndpoint(url);
+    this->networkRequester->validateRequest(url);
 
-    bool result = this->networkRequester->isValidEndpoint();
+    bool result = this->networkRequester->isValidRequest();
     if (!result)
         showMessage(this->networkRequester->getCurrentMessage(), QMessageBox::Critical);
 
