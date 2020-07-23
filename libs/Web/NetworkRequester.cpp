@@ -60,7 +60,6 @@ void NetworkRequester::filesDetailsReadyRead()
         for (int i = 0; i < jsonArray.count(); i++) {
             DownloadDetails currentDetails(jsonArray.at(i).toObject());
             this->downloadsDetailsList.push_back(currentDetails);
-            currentDetails.printData();
         }
     }
 }
