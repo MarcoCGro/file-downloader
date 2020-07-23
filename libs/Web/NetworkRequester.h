@@ -3,7 +3,6 @@
 
 #include <QtNetwork>
 #include "JsonValidator.h"
-#include "DownloadDetails.h"
 
 class NetworkRequester : public QObject
 {
@@ -16,7 +15,7 @@ public:
     ~NetworkRequester();
 
     void requestFilesDetails(QString url);
-    QList<DownloadDetails> getDownloadsDetailsList() const;
+    QJsonArray getJsonArray() const;
 
     void validateRequest(QString url);
     bool isValidRequest();
@@ -36,8 +35,8 @@ protected:
     QNetworkRequest request;
     QNetworkReply *reply;
 
-    QList<DownloadDetails> downloadsDetailsList;
     JsonValidator *jsonValidator;
+    QJsonArray jsonArray;
 
     QString currentContent;
 

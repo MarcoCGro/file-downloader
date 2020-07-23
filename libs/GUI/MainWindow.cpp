@@ -25,14 +25,14 @@ void MainWindow::initialize()
     ui->tableWidget->horizontalHeader()->hide();
     ui->tableWidget->verticalHeader()->hide();
 
-    this->downloadsDetails = new QList<DownloadDetailsWidget*>();
+    this->downloadsWidgets = new QList<DownloadDetailsWidget*>();
 }
 
-void MainWindow::addElementToDownload(QString filename, QString blobType, QString fileSize, QString downloadURI)
+void MainWindow::addElementToDownload(QString filename, QString blobType, double fileSize)
 {
     DownloadDetailsWidget* curr = new DownloadDetailsWidget;
-    curr->setValues(filename, blobType, fileSize, downloadURI);
-    this->downloadsDetails->push_back(curr);
+    curr->setValues(filename, blobType, fileSize);
+    this->downloadsWidgets->push_back(curr);
 
     int k = ui->tableWidget->rowCount();
     ui->tableWidget->insertRow(k);
@@ -42,7 +42,19 @@ void MainWindow::addElementToDownload(QString filename, QString blobType, QStrin
 
 void MainWindow::on_actionRequest_triggered()
 {
+    this->downloadsWidgets->clear();
+
+    this->downloadsDetailsList.clear();
     this->networkRequester->requestFilesDetails(this->settingsDialog->getFilesUrl());
+
+    if (this->networkRequester->isValidRequest()) {
+        QJsonArray jsonArray = this->networkRequester->getJsonArray();
+        for (int i = 0; i < jsonArray.size(); i++) {
+            DownloadDetails currentDetails(jsonArray.at(i).toObject());
+            this->downloadsDetailsList.push_back(currentDetails);
+            addElementToDownload(currentDetails.getFilename(), currentDetails.getBlobType(), currentDetails.getLength());
+        }
+    }
 }
 
 void MainWindow::on_actionSettings_triggered()
@@ -54,10 +66,10 @@ MainWindow::~MainWindow()
 {
     delete ui;
 
-    if (this->downloadsDetails != nullptr) {
-        this->downloadsDetails->clear();
-        delete this->downloadsDetails;
-        this->downloadsDetails = nullptr;
+    if (this->downloadsWidgets != nullptr) {
+        this->downloadsWidgets->clear();
+        delete this->downloadsWidgets;
+        this->downloadsWidgets = nullptr;
     }
 
     if (this->networkRequester != nullptr) {

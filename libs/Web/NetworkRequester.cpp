@@ -6,9 +6,7 @@ NetworkRequester::NetworkRequester(QObject *parent)
     this->manager = new QNetworkAccessManager(this);
     this->reply = nullptr;
 
-    this->downloadsDetailsList.clear();
     this->jsonValidator = new JsonValidator(JSON_FIELDS);
-
     this->currentContent = "";
 
     this->validRequest = false;
@@ -31,8 +29,6 @@ NetworkRequester::~NetworkRequester()
         delete this->jsonValidator;
         this->jsonValidator = 0;
     }
-
-    this->downloadsDetailsList.clear();
 }
 
 void NetworkRequester::requestFilesDetails(QString url)
@@ -42,26 +38,21 @@ void NetworkRequester::requestFilesDetails(QString url)
 
     connect(this->reply, &QIODevice::readyRead, this, &NetworkRequester::filesDetailsReadyRead);
     connect(this->reply, &QNetworkReply::finished, this, &NetworkRequester::filesDetailsFinished);
+
+    QEventLoop loop;
+    connect(this->reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec();
 }
 
-QList<DownloadDetails> NetworkRequester::getDownloadsDetailsList() const
+QJsonArray NetworkRequester::getJsonArray() const
 {
-    return this->downloadsDetailsList;
+    return this->jsonArray;
 }
 
 void NetworkRequester::filesDetailsReadyRead()
 {
     verifyResult();
-    this->downloadsDetailsList.clear();
-
-    if (this->validRequest) {
-        QJsonArray jsonArray = this->jsonValidator->jsonFromString(this->currentContent, &this->validRequest);
-
-        for (int i = 0; i < jsonArray.count(); i++) {
-            DownloadDetails currentDetails(jsonArray.at(i).toObject());
-            this->downloadsDetailsList.push_back(currentDetails);
-        }
-    }
+    this->jsonArray = this->jsonValidator->jsonFromString(this->currentContent, &this->validRequest);
 }
 
 void NetworkRequester::filesDetailsFinished()
@@ -92,6 +83,8 @@ void NetworkRequester::verificationFinished()
 
 void NetworkRequester::verifyResult()
 {
+    this->validRequest = false;
+
     if (this->reply->error() == QNetworkReply::NoError) {
         this->currentContent = this->reply->readAll();
 

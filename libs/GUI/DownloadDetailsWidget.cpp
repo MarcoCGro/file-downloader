@@ -1,6 +1,8 @@
 #include "DownloadDetailsWidget.h"
 #include "ui_DownloadDetailsWidget.h"
 
+#include <qmath.h>
+
 DownloadDetailsWidget::DownloadDetailsWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::DownloadDetailsWidget)
@@ -29,14 +31,35 @@ void DownloadDetailsWidget::initialize()
     this->downloadURI = "";
 }
 
-void DownloadDetailsWidget::setValues(QString filename, QString blobType, QString fileSize, QString downloadURI)
+void DownloadDetailsWidget::setValues(QString filename, QString blobType, double fileSize)
 {
     ui->filenameLabel->setText(filename);
+
     ui->blobTypeLabel->setText(blobType);
     ui->rateLabel->setText("0 bytes/s");
 
-    this->fileSize = fileSize.toDouble();
-    this->downloadURI = downloadURI;
+    this->fileSize = fileSize;
+
+    double bValue = 0.0;
+    QString bUnit;
+    if (this->fileSize < 1024) {
+        bValue = this->fileSize;
+        bUnit = "bytes";
+    }
+    else if (this->fileSize < pow(1024, 2)) {
+        bValue = this->fileSize / 1024;
+        bUnit = "kB";
+    }
+    else if (this->fileSize < pow(1024, 3)) {
+        bValue = this->fileSize / pow(1024, 2);
+        bUnit = "MB";
+    }
+    else {
+        bValue = this->fileSize / pow(1024, 3);
+        bUnit = "GB";
+    }
+
+    ui->lengthLabel->setText(QString::number(bValue, 'f', 2) + " " + bUnit);
 }
 
 DownloadDetailsWidget::~DownloadDetailsWidget()

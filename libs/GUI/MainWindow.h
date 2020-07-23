@@ -8,6 +8,7 @@
 #include "DownloadDetailsWidget.h"
 
 #include "libs/Web/NetworkRequester.h"
+#include "libs/Web/DownloadDetails.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -23,12 +24,13 @@ public:
 
 protected:
     void initialize();
-    void addElementToDownload(QString filename, QString blobType, QString fileSize, QString downloadURI);
+    void addElementToDownload(QString filename, QString blobType, double fileSize);
 
     SettingsDialog *settingsDialog;
-    QList<DownloadDetailsWidget*> *downloadsDetails;
+    QList<DownloadDetailsWidget*> *downloadsWidgets;
 
     NetworkRequester *networkRequester;
+    QList<DownloadDetails> downloadsDetailsList;
 
 private slots:
     void on_actionRequest_triggered();

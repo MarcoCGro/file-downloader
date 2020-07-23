@@ -67,7 +67,7 @@
           </spacer>
          </item>
          <item>
-          <widget class="QLabel" name="rateLabel">
+          <widget class="QLabel" name="lengthLabel">
            <property name="font">
             <font>
              <pointsize>7</pointsize>
@@ -90,6 +90,18 @@
             </size>
            </property>
           </spacer>
+         </item>
+         <item>
+          <widget class="QLabel" name="rateLabel">
+           <property name="font">
+            <font>
+             <pointsize>7</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>TextLabel</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>

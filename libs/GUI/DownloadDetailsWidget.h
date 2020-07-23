@@ -15,7 +15,7 @@ public:
     explicit DownloadDetailsWidget(QWidget *parent = nullptr);
     ~DownloadDetailsWidget();
 
-    void setValues(QString filename, QString blobType, QString fileSize, QString downloadURI);
+    void setValues(QString filename, QString blobType, double fileSize);
 
 protected:
     void initialize();
