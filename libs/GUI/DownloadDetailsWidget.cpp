@@ -27,35 +27,36 @@ void DownloadDetailsWidget::initialize()
     ui->messagesLabel->setText("");
     ui->messagesLabel->hide();
 
-    this->fileSize = 0.0;
-    this->downloadURI = "";
+    this->currentState = DownloadState::NON_STARTED;
 }
 
-void DownloadDetailsWidget::setValues(QString filename, QString blobType, double fileSize)
+void DownloadDetailsWidget::setValues(DownloadDetails downloadDetails)
 {
-    ui->filenameLabel->setText(filename);
+    this->downloadDetails = downloadDetails;
 
-    ui->blobTypeLabel->setText(blobType);
+    ui->filenameLabel->setText(this->downloadDetails.getFilename());
+
+    ui->blobTypeLabel->setText(this->downloadDetails.getBlobType());
     ui->rateLabel->setText("0 bytes/s");
 
-    this->fileSize = fileSize;
+    double fileSize = this->downloadDetails.getLength();
 
     double bValue = 0.0;
     QString bUnit;
-    if (this->fileSize < 1024) {
-        bValue = this->fileSize;
+    if (fileSize < 1024) {
+        bValue = fileSize;
         bUnit = "bytes";
     }
-    else if (this->fileSize < pow(1024, 2)) {
-        bValue = this->fileSize / 1024;
+    else if (fileSize < pow(1024, 2)) {
+        bValue = fileSize / 1024;
         bUnit = "kB";
     }
-    else if (this->fileSize < pow(1024, 3)) {
-        bValue = this->fileSize / pow(1024, 2);
+    else if (fileSize < pow(1024, 3)) {
+        bValue = fileSize / pow(1024, 2);
         bUnit = "MB";
     }
     else {
-        bValue = this->fileSize / pow(1024, 3);
+        bValue = fileSize / pow(1024, 3);
         bUnit = "GB";
     }
 
@@ -65,4 +66,32 @@ void DownloadDetailsWidget::setValues(QString filename, QString blobType, double
 DownloadDetailsWidget::~DownloadDetailsWidget()
 {
     delete ui;
+}
+
+void DownloadDetailsWidget::on_stateButton_pressed()
+{
+    if (this->currentState == DownloadState::NON_STARTED)
+        startDownload();
+    else if (this->currentState == DownloadState::IN_PROGRESS)
+        pauseDownload();
+    else if (this->currentState == DownloadState::PAUSED)
+        resumeDownload();
+}
+
+void DownloadDetailsWidget::startDownload()
+{
+    this->currentState = DownloadState::IN_PROGRESS;
+    ui->stateButton->setText("Pause");
+}
+
+void DownloadDetailsWidget::pauseDownload()
+{
+    this->currentState = DownloadState::PAUSED;
+    ui->stateButton->setText("Resume");
+}
+
+void DownloadDetailsWidget::resumeDownload()
+{
+    this->currentState = DownloadState::IN_PROGRESS;
+    ui->stateButton->setText("Pause");
 }

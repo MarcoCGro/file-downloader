@@ -2,6 +2,7 @@
 #define DOWNLOADDETAILSWIDGET_H
 
 #include <QWidget>
+#include "libs/Web/DownloadDetails.h"
 
 namespace Ui {
 class DownloadDetailsWidget;
@@ -12,16 +13,30 @@ class DownloadDetailsWidget : public QWidget
     Q_OBJECT
 
 public:
+    enum DownloadState {
+        NON_STARTED = 0,
+        IN_PROGRESS,
+        PAUSED,
+        FINISHED
+    };
+
     explicit DownloadDetailsWidget(QWidget *parent = nullptr);
     ~DownloadDetailsWidget();
 
-    void setValues(QString filename, QString blobType, double fileSize);
+    void setValues(DownloadDetails downloadDetails);
 
 protected:
     void initialize();
 
-    QString downloadURI;
-    double fileSize;
+    void startDownload();
+    void pauseDownload();
+    void resumeDownload();
+
+    DownloadDetails downloadDetails;
+    DownloadState currentState;
+
+private slots:
+    void on_stateButton_pressed();
 
 private:
     Ui::DownloadDetailsWidget *ui;

@@ -24,13 +24,12 @@ public:
 
 protected:
     void initialize();
-    void addElementToDownload(QString filename, QString blobType, double fileSize);
+    void addElementToDownload(DownloadDetails downloadDetails);
 
     SettingsDialog *settingsDialog;
     QList<DownloadDetailsWidget*> *downloadsWidgets;
 
     NetworkRequester *networkRequester;
-    QList<DownloadDetails> downloadsDetailsList;
 
 private slots:
     void on_actionRequest_triggered();

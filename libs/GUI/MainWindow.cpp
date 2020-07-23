@@ -28,10 +28,10 @@ void MainWindow::initialize()
     this->downloadsWidgets = new QList<DownloadDetailsWidget*>();
 }
 
-void MainWindow::addElementToDownload(QString filename, QString blobType, double fileSize)
+void MainWindow::addElementToDownload(DownloadDetails downloadDetails)
 {
     DownloadDetailsWidget* curr = new DownloadDetailsWidget;
-    curr->setValues(filename, blobType, fileSize);
+    curr->setValues(downloadDetails);
     this->downloadsWidgets->push_back(curr);
 
     int k = ui->tableWidget->rowCount();
@@ -43,16 +43,13 @@ void MainWindow::addElementToDownload(QString filename, QString blobType, double
 void MainWindow::on_actionRequest_triggered()
 {
     this->downloadsWidgets->clear();
-
-    this->downloadsDetailsList.clear();
     this->networkRequester->requestFilesDetails(this->settingsDialog->getFilesUrl());
 
     if (this->networkRequester->isValidRequest()) {
         QJsonArray jsonArray = this->networkRequester->getJsonArray();
         for (int i = 0; i < jsonArray.size(); i++) {
-            DownloadDetails currentDetails(jsonArray.at(i).toObject());
-            this->downloadsDetailsList.push_back(currentDetails);
-            addElementToDownload(currentDetails.getFilename(), currentDetails.getBlobType(), currentDetails.getLength());
+            DownloadDetails currentDownload(jsonArray.at(i).toObject());
+            addElementToDownload(currentDownload);
         }
     }
 }
