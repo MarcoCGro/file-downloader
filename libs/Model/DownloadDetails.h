@@ -19,14 +19,17 @@ public:
     DownloadState getState() const;
     void setState(const DownloadState &value);
 
+    int getNumBytesReceived() const;
+    void setNumBytesReceived(int value);
+
     QString getOutputFilename() const;
     void setOutputFilename(const QString &path);
 
     QString getFilename() const;
     void setFilename(const QString &value);
 
-    double getLength() const;
-    void setLength(double value);
+    int getLength() const;
+    void setLength(int value);
 
     QString getBlobType() const;
     void setBlobType(const QString &value);
@@ -38,6 +41,7 @@ public:
 
 protected:
     DownloadState state;
+    int numBytesReceived;
     QString outputFilename;
 
     QString filename;

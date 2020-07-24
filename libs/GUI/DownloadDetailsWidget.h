@@ -30,10 +30,16 @@ protected:
     FileDownloader *fileDownloader;
     DownloadDetails *downloadDetails;
 
-private slots:
+protected slots:
     void on_stateButton_pressed();
 
+    void updateProgress(int bytesReceived);
+    void recoverDownload();
+    void finishDownload();
+
 private:
+    QString getBytesLabel(double numBytes);
+
     Ui::DownloadDetailsWidget *ui;
 };
 

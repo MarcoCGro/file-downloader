@@ -13,15 +13,22 @@ public:
     ~FileDownloader();
 
     void startDownload(DownloadDetails *downloadDetails);
+    void pauseDownload();
+    void resumeDownload();
+
+signals:
+    void updateProgress(int bytesReceived);
+    void recoverDownload();
+    void finished();
 
 protected slots:
-    void downloadReadyRead();
     void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
     void downloadFinished();
 
 protected:
     DownloadDetails *currentDownloadDetails;
-    QFile output;
+    bool acceptRanges;
+    QFile *file;
 };
 
 #endif // FILEDOWNLOADER_H

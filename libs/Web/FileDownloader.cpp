@@ -4,10 +4,14 @@ FileDownloader::FileDownloader(QObject *parent)
     : NetworkManager(parent)
 {
     this->currentDownloadDetails = nullptr;
+    this->file = nullptr;
+    this->acceptRanges = false;
 }
 
 FileDownloader::~FileDownloader()
 {
+    if (this->file != nullptr)
+        this->file = nullptr;
 }
 
 void FileDownloader::startDownload(DownloadDetails *downloadDetails)
@@ -15,39 +19,117 @@ void FileDownloader::startDownload(DownloadDetails *downloadDetails)
     this->currentDownloadDetails = downloadDetails;
 
     QString filename = this->currentDownloadDetails->getOutputFilename();
-    qDebug(" filename: %s ", filename.toStdString().data());
 
-    this->output.setFileName(filename);
-    if (!this->output.open(QIODevice::WriteOnly)) {
+    this->file = new QFile(filename + ".part");
+    if (this->file->exists()) {
+        QFile::remove(filename + ".part");
+        this->file->remove();
+
+        this->file = new QFile(filename + ".part");
+    }
+
+    if (!this->file->open(QIODevice::ReadWrite | QIODevice::Append)) {
         this->validRequest = false;
         this->currentMessage = "Problem opening save file for download [ " + this->currentDownloadDetails->getDownloadURI() + " ]";
         return;
     }
 
-    this->request.setUrl(QUrl(this->currentDownloadDetails->getDownloadURI()));
+    this->request = QNetworkRequest(QUrl(this->currentDownloadDetails->getDownloadURI()));
     this->reply = this->manager->get(request);
 
-    connect(this->reply, &QIODevice::readyRead, this, &FileDownloader::downloadReadyRead);
+    if (this->reply->hasRawHeader("Accept-Ranges")) {
+        QString qstrAcceptRanges = this->reply->rawHeader("Accept-Ranges");
+        this->acceptRanges = qstrAcceptRanges.compare("bytes", Qt::CaseInsensitive) == 0;
+    }
+
     connect(this->reply, &QNetworkReply::downloadProgress, this, &FileDownloader::downloadProgress);
     connect(this->reply, &QNetworkReply::finished, this, &FileDownloader::downloadFinished);
 }
 
-void FileDownloader::downloadReadyRead()
+void FileDownloader::pauseDownload()
 {
-    QByteArray byteArray = this->reply->readAll();
-    this->output.write(byteArray);
+    disconnect(this->reply, &QNetworkReply::downloadProgress, this, &FileDownloader::downloadProgress);
+    disconnect(this->reply, &QNetworkReply::finished, this, &FileDownloader::downloadFinished);
+
+    this->reply->abort();
+    this->file->flush();
+
+    QNetworkReply *tmpReply = this->reply;
+    tmpReply->deleteLater();
+
+    this->reply = nullptr;
+}
+
+void FileDownloader::resumeDownload()
+{
+    if (this->acceptRanges) {
+        qint64 currentBytes = this->currentDownloadDetails->getNumBytesReceived();
+        QByteArray rangeHeaderValue = "bytes=" + QByteArray::number(currentBytes) + "-" + QByteArray::number(this->currentDownloadDetails->getLength());
+        qDebug(" Range: %s ", rangeHeaderValue.toStdString().data());
+        this->request.setRawHeader("Range", rangeHeaderValue);
+    }
+    else {
+        QString filename = this->currentDownloadDetails->getOutputFilename();
+        this->file->remove();
+
+        this->file = new QFile(filename + ".part");
+        if (!this->file->open(QIODevice::ReadWrite | QIODevice::Append)) {
+            this->validRequest = false;
+            this->currentMessage = "Problem reopening original file for download [ " + this->currentDownloadDetails->getDownloadURI() + " ]";
+            return;
+        }
+    }
+
+    this->reply = this->manager->get(this->request);
+
+    connect(this->reply, &QNetworkReply::downloadProgress, this, &FileDownloader::downloadProgress);
+    connect(this->reply, &QNetworkReply::finished, this, &FileDownloader::downloadFinished);
 }
 
 void FileDownloader::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 {
-    qDebug(" bytesReceived: %ld %ld ", bytesReceived, bytesTotal);
+    if (!this->acceptRanges && (bytesReceived < this->currentDownloadDetails->getNumBytesReceived())) {
+        emit recoverDownload();
+        return;
+    }
+
+    qDebug(" bytesReceived: %d %d ", int(bytesReceived), int(bytesTotal));
+
+    QByteArray byteArray = this->reply->readAll();
+    this->file->write(byteArray);
+
+    emit updateProgress(int(bytesReceived));
 }
 
 void FileDownloader::downloadFinished()
 {
     qDebug(" NetworkRequester::downloadFinished() ");
 
-    bool success = this->output.flush();
-    if (success)
-        this->output.close();
-}
+    bool success = this->file->flush();
+    if (success) {
+        QString tmpFilename = this->file->fileName();
+        qint64 finalSize = this->file->size();
+
+        this->file->close();
+        this->file = nullptr;
+
+        if (this->currentDownloadDetails->getLength() == int(finalSize)) {
+            QFile::rename(tmpFilename, this->currentDownloadDetails->getOutputFilename());
+            this->validRequest = true;
+            this->currentMessage = "";
+        }
+        else {
+            this->validRequest = false;
+            this->currentMessage = "Final length of your file is invalid, try another download.";
+        }
+    }
+    else {
+        this->validRequest = false;
+        this->currentMessage = "Your file wasn't saved correctly.";
+    }
+
+    this->reply->deleteLater();
+    this->reply = nullptr;
+
+    emit finished();
+ }

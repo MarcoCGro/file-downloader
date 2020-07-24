@@ -23,7 +23,7 @@ DownloadDetailsWidget::~DownloadDetailsWidget()
 
 void DownloadDetailsWidget::initialize()
 {
-    this->resize(this->width(), 80);
+    this->resize(this->width(), 90);
 
     ui->filenameLabel->setText("[filename]");
     ui->blobTypeLabel->setText("[type]");
@@ -39,6 +39,10 @@ void DownloadDetailsWidget::initialize()
 
     this->fileDownloader = new FileDownloader(this);
     this->downloadDetails = nullptr;
+
+    connect(this->fileDownloader, &FileDownloader::updateProgress, this, &DownloadDetailsWidget::updateProgress);
+    connect(this->fileDownloader, &FileDownloader::recoverDownload, this, &DownloadDetailsWidget::recoverDownload);
+    connect(this->fileDownloader, &FileDownloader::finished, this, &DownloadDetailsWidget::finishDownload);
 }
 
 void DownloadDetailsWidget::setValues(DownloadDetails *downloadDetails)
@@ -48,30 +52,12 @@ void DownloadDetailsWidget::setValues(DownloadDetails *downloadDetails)
     ui->filenameLabel->setText(this->downloadDetails->getFilename());
 
     ui->blobTypeLabel->setText(this->downloadDetails->getBlobType());
-    ui->rateLabel->setText("0 bytes/s");
+    ui->rateLabel->setText("0 bytes");
 
     double fileSize = this->downloadDetails->getLength();
 
-    double bValue = 0.0;
-    QString bUnit;
-    if (fileSize < 1024) {
-        bValue = fileSize;
-        bUnit = "bytes";
-    }
-    else if (fileSize < pow(1024, 2)) {
-        bValue = fileSize / 1024;
-        bUnit = "kB";
-    }
-    else if (fileSize < pow(1024, 3)) {
-        bValue = fileSize / pow(1024, 2);
-        bUnit = "MB";
-    }
-    else {
-        bValue = fileSize / pow(1024, 3);
-        bUnit = "GB";
-    }
-
-    ui->lengthLabel->setText(QString::number(bValue, 'f', 2) + " " + bUnit);
+    ui->lengthLabel->setText(getBytesLabel(fileSize));
+    ui->progressBar->setRange(0, this->downloadDetails->getLength());
 }
 
 void DownloadDetailsWidget::on_stateButton_pressed()
@@ -85,22 +71,96 @@ void DownloadDetailsWidget::on_stateButton_pressed()
         resumeDownload();
 }
 
+void DownloadDetailsWidget::updateProgress(int bytesReceived)
+{
+    if (!ui->messagesLabel->isHidden())
+        ui->messagesLabel->hide();
+
+    ui->progressBar->setValue(bytesReceived);
+    ui->rateLabel->setText(getBytesLabel(bytesReceived));
+    ui->rateLabel->show();
+
+    this->downloadDetails->setNumBytesReceived(bytesReceived);
+}
+
+void DownloadDetailsWidget::recoverDownload()
+{
+    ui->messagesLabel->setText("Please, wait, your download is being recovered...");
+    ui->messagesLabel->show();
+}
+
 void DownloadDetailsWidget::startDownload()
 {
-    this->downloadDetails->setState(DownloadDetails::DownloadState::IN_PROGRESS);
-    ui->stateButton->setText("Pause");
+    if (!ui->messagesLabel->isHidden())
+        ui->messagesLabel->hide();
 
+    ui->stateButton->setText("Pause");
+    ui->progressBar->show();
+
+    this->downloadDetails->setState(DownloadDetails::DownloadState::IN_PROGRESS);
     this->fileDownloader->startDownload(this->downloadDetails);
 }
 
 void DownloadDetailsWidget::pauseDownload()
 {
-    this->downloadDetails->setState(DownloadDetails::DownloadState::PAUSED);
     ui->stateButton->setText("Resume");
+    this->downloadDetails->setState(DownloadDetails::DownloadState::PAUSED);
+
+    this->fileDownloader->pauseDownload();
 }
 
 void DownloadDetailsWidget::resumeDownload()
 {
-    this->downloadDetails->setState(DownloadDetails::DownloadState::IN_PROGRESS);
     ui->stateButton->setText("Pause");
+
+    this->downloadDetails->setState(DownloadDetails::DownloadState::IN_PROGRESS);
+
+    this->fileDownloader->resumeDownload();
+}
+
+void DownloadDetailsWidget::finishDownload()
+{
+    if (this->fileDownloader->isValidRequest()) {
+        ui->stateButton->setText("Done");
+        ui->stateButton->setEnabled(false);
+
+        this->downloadDetails->setState(DownloadDetails::DownloadState::FINISHED);
+    }
+    else {
+        ui->stateButton->setText("Download");
+        ui->stateButton->setEnabled(true);
+
+        ui->messagesLabel->setText(this->fileDownloader->getCurrentMessage());
+        ui->messagesLabel->show();
+
+        this->downloadDetails->setState(DownloadDetails::DownloadState::NON_STARTED);
+    }
+
+    ui->progressBar->hide();
+    ui->rateLabel->hide();
+}
+
+QString DownloadDetailsWidget::getBytesLabel(double numBytes)
+{
+    double bValue = 0.0;
+    QString bUnit;
+
+    if (numBytes < 1024) {
+        bValue = numBytes;
+        bUnit = "bytes";
+    }
+    else if (numBytes < pow(1024, 2)) {
+        bValue = numBytes / 1024;
+        bUnit = "kB";
+    }
+    else if (numBytes < pow(1024, 3)) {
+        bValue = numBytes / pow(1024, 2);
+        bUnit = "MB";
+    }
+    else {
+        bValue = numBytes / pow(1024, 3);
+        bUnit = "GB";
+    }
+
+    return QString::number(bValue, 'f', 2) + " " + bUnit;
 }
