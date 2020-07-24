@@ -41,7 +41,7 @@ void DownloadDetailsWidget::initialize()
     this->downloadDetails = nullptr;
 
     connect(this->fileDownloader, &FileDownloader::updateProgress, this, &DownloadDetailsWidget::updateProgress);
-    connect(this->fileDownloader, &FileDownloader::recoverDownload, this, &DownloadDetailsWidget::recoverDownload);
+    connect(this->fileDownloader, &FileDownloader::recoverProgress, this, &DownloadDetailsWidget::recoverDownloadMessage);
     connect(this->fileDownloader, &FileDownloader::finished, this, &DownloadDetailsWidget::finishDownload);
 }
 
@@ -58,6 +58,17 @@ void DownloadDetailsWidget::setValues(DownloadDetails *downloadDetails)
 
     ui->lengthLabel->setText(getBytesLabel(fileSize));
     ui->progressBar->setRange(0, this->downloadDetails->getLength());
+}
+
+QJsonObject DownloadDetailsWidget::getValuesAsJson()
+{
+    return this->downloadDetails->getValuesAsJson();
+}
+
+void DownloadDetailsWidget::releaseDownload()
+{
+    if (this->downloadDetails->getState() == DownloadDetails::DownloadState::IN_PROGRESS)
+        this->pauseDownload();
 }
 
 void DownloadDetailsWidget::on_stateButton_pressed()
@@ -80,13 +91,32 @@ void DownloadDetailsWidget::updateProgress(int bytesReceived)
     ui->rateLabel->setText(getBytesLabel(bytesReceived));
     ui->rateLabel->show();
 
-    this->downloadDetails->setNumBytesReceived(bytesReceived);
+    this->downloadDetails->setNumReceivedBytes(bytesReceived);
+}
+
+void DownloadDetailsWidget::recoverDownloadMessage()
+{
+    ui->messagesLabel->setText("Please, wait, your download is being recovered...");
+    ui->messagesLabel->show();
 }
 
 void DownloadDetailsWidget::recoverDownload()
 {
-    ui->messagesLabel->setText("Please, wait, your download is being recovered...");
-    ui->messagesLabel->show();
+    if (this->downloadDetails->getState() == DownloadDetails::DownloadState::PAUSED) {
+        ui->stateButton->setText("Resume");
+
+        ui->progressBar->setValue(this->downloadDetails->getNumReceivedBytes());
+        ui->progressBar->show();
+    }
+    else if (this->downloadDetails->getState() == DownloadDetails::DownloadState::FINISHED) {
+        ui->stateButton->setText("Done");
+        ui->stateButton->setEnabled(false);
+    }
+    else {
+        return;
+    }
+
+    this->fileDownloader->recoverDownload(this->downloadDetails);
 }
 
 void DownloadDetailsWidget::startDownload()

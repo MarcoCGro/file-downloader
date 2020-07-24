@@ -28,9 +28,19 @@ QString SettingsDialog::getFilesUrl() const
     return this->currentFilesUrl;
 }
 
+void SettingsDialog::setFilesUrl(const QString &value)
+{
+    this->currentFilesUrl = value;
+}
+
 QString SettingsDialog::getDownloadsDirectory() const
 {
     return this->currentDownloadsDirectory;
+}
+
+void SettingsDialog::setDownloadsDirectory(const QString &value)
+{
+    this->currentDownloadsDirectory = value;
 }
 
 void SettingsDialog::initialize()
@@ -39,7 +49,7 @@ void SettingsDialog::initialize()
     ui->directoryButton->setIcon(ui->actionDirectory->icon());
     ui->syncButton->setIcon(ui->actionSync->icon());
 
-    this->currentFilesUrl = "https://altomobile.blob.core.windows.net/api/files.json";
+    this->currentFilesUrl = DEFAULT_DOWNLOADS_URL;
     ui->filesUrlEdit->setText(this->currentFilesUrl);
     this->currentDownloadsDirectory = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
     ui->directoryEdit->setText(this->currentDownloadsDirectory);

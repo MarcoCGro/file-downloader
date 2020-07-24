@@ -10,6 +10,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     this->endpointRequester = new EndpointRequester(this);
     this->settingsDialog->setEndpointRequester(this->endpointRequester);
+    this->jsonValidator = new JsonValidator(JSON_EXTENDED_FIELDS);
+
+    loadCurrentDownloads();
 }
 
 void MainWindow::initialize()
@@ -28,6 +31,41 @@ void MainWindow::initialize()
     this->downloadsWidgets = new QList<DownloadDetailsWidget*>();
 }
 
+void MainWindow::loadCurrentDownloads()
+{
+    QFile file(this->preferencesFilename);
+
+    if (file.exists()) {
+        if (!file.open(QIODevice::ReadOnly))
+             return;
+
+        QString content = file.readAll();
+
+        bool isJsonValid = false;
+        QJsonObject jObject = this->jsonValidator->jsonFromExtendedContent(content, &isJsonValid);
+
+        if (isJsonValid) {
+            this->settingsDialog->setFilesUrl(jObject.find("DownloadsURL").value().toString());
+            this->settingsDialog->setDownloadsDirectory(jObject.find("DownloadsDirectory").value().toString());
+
+            setDownloads(jObject.find("Downloads").value().toArray());
+            recoverCurrentDownloads();
+        }
+        else {
+            showMessage("Something was wrong when current downloads were loaded. Settings file content is invalid.", QMessageBox::Critical);
+        }
+    }
+}
+
+void MainWindow::setDownloads(QJsonArray jsonArray)
+{
+    for (int i = 0; i < jsonArray.size(); i++) {
+        DownloadDetails *currentDetails = new DownloadDetails(jsonArray.at(i).toObject());
+        currentDetails->setOutputFilename(this->settingsDialog->getDownloadsDirectory());
+        addElementToDownload(currentDetails);
+    }
+}
+
 void MainWindow::addElementToDownload(DownloadDetails *downloadDetails)
 {
     DownloadDetailsWidget* currDownloadWidget = new DownloadDetailsWidget;
@@ -40,6 +78,47 @@ void MainWindow::addElementToDownload(DownloadDetails *downloadDetails)
     ui->tableWidget->setCellWidget(k, 0, currDownloadWidget);
 }
 
+void MainWindow::recoverCurrentDownloads()
+{
+    for (int i = 0; i < this->downloadsWidgets->count(); i++)
+        (this->downloadsWidgets->at(i))->recoverDownload();
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    saveCurrentDownloads();
+    event->accept();
+}
+
+void MainWindow::saveCurrentDownloads()
+{
+    QJsonObject preferences;
+
+    preferences.insert("DownloadsDirectory", this->settingsDialog->getDownloadsDirectory());
+    preferences.insert("DownloadsURL", this->settingsDialog->getFilesUrl());
+
+    QJsonArray jsonArray;
+    for (int i = 0; i < this->downloadsWidgets->size(); i++) {
+        this->downloadsWidgets->at(i)->releaseDownload();
+        QJsonObject jsonObject = this->downloadsWidgets->at(i)->getValuesAsJson();
+        jsonArray.insert(i, jsonObject);
+    }
+
+    preferences.insert("Downloads", jsonArray);
+
+    QJsonDocument doc(preferences);
+    QString strJson(doc.toJson(QJsonDocument::Compact));
+
+    QFile file(this->preferencesFilename);
+    if (!file.open(QIODevice::WriteOnly))
+        return;
+
+    file.write(strJson.toStdString().data());
+
+    file.flush();
+    file.close();
+}
+
 void MainWindow::on_actionRequest_triggered()
 {
     this->downloadsWidgets->clear();
@@ -47,17 +126,23 @@ void MainWindow::on_actionRequest_triggered()
 
     if (this->endpointRequester->isValidRequest()) {
         QJsonArray jsonArray = this->endpointRequester->getJsonArray();
-        for (int i = 0; i < jsonArray.size(); i++) {
-            DownloadDetails *currentDetails = new DownloadDetails(jsonArray.at(i).toObject());
-            currentDetails->setOutputFilename(this->settingsDialog->getDownloadsDirectory());
-            addElementToDownload(currentDetails);
-        }
+        setDownloads(jsonArray);
+    }
+    else {
+        showMessage("Something went wrong. Please verify the specified URL clicking on Settings and try again.", QMessageBox::Critical);
     }
 }
 
 void MainWindow::on_actionSettings_triggered()
 {
     this->settingsDialog->show();
+}
+
+void MainWindow::showMessage(QString message, QMessageBox::Icon msgType)
+{
+    this->messageBox.setIcon(msgType);
+    this->messageBox.setText(message);
+    this->messageBox.show();
 }
 
 MainWindow::~MainWindow()

@@ -7,6 +7,35 @@ JsonValidator::JsonValidator(QList<QString> fields)
     this->validFields = fields;
 }
 
+QJsonObject JsonValidator::jsonFromExtendedContent(QString &content, bool *valid)
+{
+    QJsonObject jObject;
+
+    QJsonDocument doc = QJsonDocument::fromJson(content.toUtf8());
+    if (!doc.isNull()) {
+        if (doc.isObject()) {
+            jObject = doc.object();
+            *valid = true;
+
+            if ( jObject.find("DownloadsUrl").value().toString() == "" ||
+                 jObject.find("DownloadsDirectory").value().toString() == "") {
+                *valid = false;
+            }
+
+            QJsonArray jArray = jObject.find("Downloads").value().toArray();
+            *valid = validateArray(jArray);
+        }
+        else {
+            *valid = false;
+        }
+    }
+    else {
+        *valid = false;
+    }
+
+    return jObject;
+}
+
 QJsonArray JsonValidator::jsonFromString(QString &content, bool *valid)
 {
     QJsonArray array;
@@ -15,14 +44,7 @@ QJsonArray JsonValidator::jsonFromString(QString &content, bool *valid)
     if (!doc.isNull()) {
         if (doc.isArray()) {
             array = doc.array();
-            *valid = true;
-
-            for (int i = 0; i < array.count(); i++) {
-                if ( !array.at(i).isObject() || !containsValidFields(array.at(i).toObject()) ) {
-                    *valid = false;
-                    break;
-                }
-            }
+            *valid = validateArray(array);
         }
         else {
             *valid = false;
@@ -33,6 +55,20 @@ QJsonArray JsonValidator::jsonFromString(QString &content, bool *valid)
     }
 
     return array;
+}
+
+bool JsonValidator::validateArray(QJsonArray jArray)
+{
+    bool valid = true;
+
+    for (int i = 0; i < jArray.count(); i++) {
+        if ( !jArray.at(i).isObject() || !containsValidFields(jArray.at(i).toObject()) ) {
+            valid = false;
+            break;
+        }
+    }
+
+    return valid;
 }
 
 bool JsonValidator::containsValidFields(QJsonObject obj)

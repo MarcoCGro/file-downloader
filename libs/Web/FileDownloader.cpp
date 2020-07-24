@@ -40,10 +40,35 @@ void FileDownloader::startDownload(DownloadDetails *downloadDetails)
     if (this->reply->hasRawHeader("Accept-Ranges")) {
         QString qstrAcceptRanges = this->reply->rawHeader("Accept-Ranges");
         this->acceptRanges = qstrAcceptRanges.compare("bytes", Qt::CaseInsensitive) == 0;
+        this->currentDownloadDetails->setAcceptRanges(this->acceptRanges);
     }
 
     connect(this->reply, &QNetworkReply::downloadProgress, this, &FileDownloader::downloadProgress);
     connect(this->reply, &QNetworkReply::finished, this, &FileDownloader::downloadFinished);
+}
+
+void FileDownloader::recoverDownload(DownloadDetails *downloadDetails)
+{
+    this->currentDownloadDetails = downloadDetails;
+    this->acceptRanges = this->currentDownloadDetails->getAcceptRanges();
+
+    QString filename = this->currentDownloadDetails->getOutputFilename();
+
+    this->file = new QFile(filename + ".part");
+    if (!this->acceptRanges) {
+        QFile::remove(filename + ".part");
+        this->file->remove();
+
+        this->file = new QFile(filename + ".part");
+    }
+
+    if (!this->file->open(QIODevice::ReadWrite | QIODevice::Append)) {
+        this->validRequest = false;
+        this->currentMessage = "Problem opening save file for download [ " + this->currentDownloadDetails->getDownloadURI() + " ]";
+        return;
+    }
+
+    this->request = QNetworkRequest(QUrl(this->currentDownloadDetails->getDownloadURI()));
 }
 
 void FileDownloader::pauseDownload()
@@ -63,7 +88,7 @@ void FileDownloader::pauseDownload()
 void FileDownloader::resumeDownload()
 {
     if (this->acceptRanges) {
-        qint64 currentBytes = this->currentDownloadDetails->getNumBytesReceived();
+        qint64 currentBytes = this->currentDownloadDetails->getNumReceivedBytes();
         QByteArray rangeHeaderValue = "bytes=" + QByteArray::number(currentBytes) + "-" + QByteArray::number(this->currentDownloadDetails->getLength());
         qDebug(" Range: %s ", rangeHeaderValue.toStdString().data());
         this->request.setRawHeader("Range", rangeHeaderValue);
@@ -88,12 +113,12 @@ void FileDownloader::resumeDownload()
 
 void FileDownloader::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 {
-    if (!this->acceptRanges && (bytesReceived < this->currentDownloadDetails->getNumBytesReceived())) {
-        emit recoverDownload();
+    Q_UNUSED(bytesTotal);
+
+    if (!this->acceptRanges && (bytesReceived < this->currentDownloadDetails->getNumReceivedBytes())) {
+        emit recoverProgress();
         return;
     }
-
-    qDebug(" bytesReceived: %d %d ", int(bytesReceived), int(bytesTotal));
 
     QByteArray byteArray = this->reply->readAll();
     this->file->write(byteArray);
@@ -103,8 +128,6 @@ void FileDownloader::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 
 void FileDownloader::downloadFinished()
 {
-    qDebug(" NetworkRequester::downloadFinished() ");
-
     bool success = this->file->flush();
     if (success) {
         QString tmpFilename = this->file->fileName();

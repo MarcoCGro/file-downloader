@@ -19,6 +19,10 @@ public:
     ~DownloadDetailsWidget();
 
     void setValues(DownloadDetails *downloadDetails);
+    QJsonObject getValuesAsJson();
+
+    void recoverDownload();
+    void releaseDownload();
 
 protected:
     void initialize();
@@ -34,8 +38,9 @@ protected slots:
     void on_stateButton_pressed();
 
     void updateProgress(int bytesReceived);
-    void recoverDownload();
     void finishDownload();
+
+    void recoverDownloadMessage();
 
 private:
     QString getBytesLabel(double numBytes);

@@ -1,5 +1,7 @@
 #include "DownloadDetails.h"
+
 #include <QDir>
+#include <QVariant>
 
 DownloadDetails::DownloadDetails(QJsonObject jsonObject)
 {
@@ -9,8 +11,34 @@ DownloadDetails::DownloadDetails(QJsonObject jsonObject)
     this->downloadURI = jsonObject["DownloadURI"].toString();
 
     this->state = DownloadState::NON_STARTED;
-    this->numBytesReceived = 0;
+    QString currState = jsonObject.find("State").value().toString();
+    if (currState != "0")
+        this->state = DownloadState(currState.toInt());
+
+    QString currAcceptRanges = jsonObject.find("AcceptRanges").value().toString();
+    this->acceptRanges = currAcceptRanges == "true";
+
+    this->numReceivedBytes = 0;
+    QString currBytesReceived = jsonObject.find("NumReceivedBytes").value().toString();
+    if (currState != "0")
+        this->numReceivedBytes = currBytesReceived.toInt();
+
     this->outputFilename = "";
+}
+
+QJsonObject DownloadDetails::getValuesAsJson()
+{
+    QJsonObject jsonObject;
+
+    jsonObject.insert("FileName", this->filename);
+    jsonObject.insert("Length", QVariant(this->length).toString());
+    jsonObject.insert("BlobType", this->blobType);
+    jsonObject.insert("DownloadURI", this->downloadURI);
+    jsonObject.insert("State", QString::number(this->state));
+    jsonObject.insert("AcceptRanges", this->acceptRanges ? "true" : "false");
+    jsonObject.insert("NumReceivedBytes", QVariant(this->numReceivedBytes).toString());
+
+    return jsonObject;
 }
 
 DownloadDetails::DownloadState DownloadDetails::getState() const
@@ -23,14 +51,24 @@ void DownloadDetails::setState(const DownloadState &value)
     this->state = value;
 }
 
-int DownloadDetails::getNumBytesReceived() const
+bool DownloadDetails::getAcceptRanges() const
 {
-    return numBytesReceived;
+    return acceptRanges;
 }
 
-void DownloadDetails::setNumBytesReceived(int value)
+void DownloadDetails::setAcceptRanges(bool value)
 {
-    numBytesReceived = value;
+    acceptRanges = value;
+}
+
+int DownloadDetails::getNumReceivedBytes() const
+{
+    return this->numReceivedBytes;
+}
+
+void DownloadDetails::setNumReceivedBytes(int value)
+{
+    this->numReceivedBytes = value;
 }
 
 QString DownloadDetails::getOutputFilename() const
@@ -86,12 +124,13 @@ void DownloadDetails::setDownloadURI(const QString &value)
 void DownloadDetails::printData()
 {
     qDebug(" ------------------------------------------------------- ");
-    qDebug("    FileName: %s", this->filename.toStdString().data());
-    qDebug("      Length: %d", int(this->length));
-    qDebug("    BlobType: %s", this->blobType.toStdString().data());
-    qDebug(" DownloadURI: %s", this->downloadURI.toStdString().data());
+    qDebug("     FileName: %s", this->filename.toStdString().data());
+    qDebug("       Length: %d", int(this->length));
+    qDebug("     BlobType: %s", this->blobType.toStdString().data());
+    qDebug("  DownloadURI: %s", this->downloadURI.toStdString().data());
 
-    qDebug("       State: %d", this->state);
-    qDebug("   NReceived: %d", this->numBytesReceived);
-    qDebug("  OutputFile: %s", this->outputFilename.toStdString().data());
+    qDebug("        State: %d", this->state);
+    qDebug(" AcceptRanges: %i", this->acceptRanges);
+    qDebug("    NReceived: %d", this->numReceivedBytes);
+    qDebug("   OutputFile: %s", this->outputFilename.toStdString().data());
 }

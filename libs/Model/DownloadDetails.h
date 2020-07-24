@@ -16,11 +16,16 @@ public:
 
     DownloadDetails(QJsonObject jsonObject);
 
+    QJsonObject getValuesAsJson();
+
     DownloadState getState() const;
     void setState(const DownloadState &value);
 
-    int getNumBytesReceived() const;
-    void setNumBytesReceived(int value);
+    bool getAcceptRanges() const;
+    void setAcceptRanges(bool value);
+
+    int getNumReceivedBytes() const;
+    void setNumReceivedBytes(int value);
 
     QString getOutputFilename() const;
     void setOutputFilename(const QString &path);
@@ -41,7 +46,8 @@ public:
 
 protected:
     DownloadState state;
-    int numBytesReceived;
+    bool acceptRanges;
+    int numReceivedBytes;
     QString outputFilename;
 
     QString filename;

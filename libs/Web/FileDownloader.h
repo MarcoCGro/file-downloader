@@ -13,12 +13,13 @@ public:
     ~FileDownloader();
 
     void startDownload(DownloadDetails *downloadDetails);
+    void recoverDownload(DownloadDetails *downloadDetails);
     void pauseDownload();
     void resumeDownload();
 
 signals:
     void updateProgress(int bytesReceived);
-    void recoverDownload();
+    void recoverProgress();
     void finished();
 
 protected slots:

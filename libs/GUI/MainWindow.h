@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QCloseEvent>
+#include <QMessageBox>
 #include <QList>
 
 #include "SettingsDialog.h"
@@ -19,17 +21,33 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
+    const QList<QString> JSON_EXTENDED_FIELDS = {"FileName", "Length", "BlobType", "DownloadURI", "State", "AcceptRanges", "NumReceivedBytes"};
+    const QString preferencesFilename = "settings.json";
+
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
 protected:
     void initialize();
+
+    void loadCurrentDownloads();
+    void setDownloads(QJsonArray jsonArray);
     void addElementToDownload(DownloadDetails *downloadDetails);
+
+    void recoverCurrentDownloads();
+
+    virtual void closeEvent(QCloseEvent *event);
+    void saveCurrentDownloads();
+
+    void showMessage(QString message, QMessageBox::Icon msgType);
 
     QList<DownloadDetailsWidget*> *downloadsWidgets;
 
     SettingsDialog *settingsDialog;
     EndpointRequester *endpointRequester;
+    JsonValidator *jsonValidator;
+
+    QMessageBox messageBox;
 
 private slots:
     void on_actionRequest_triggered();

@@ -16,13 +16,18 @@ class SettingsDialog : public QDialog
     Q_OBJECT
 
 public:
+    const QString DEFAULT_DOWNLOADS_URL = "https://altomobile.blob.core.windows.net/api/files.json";
+
     explicit SettingsDialog(QWidget *parent = nullptr);
     ~SettingsDialog();
 
     void setEndpointRequester(EndpointRequester *endpointRequester);
 
     QString getFilesUrl() const;
+    void setFilesUrl(const QString &value);
+
     QString getDownloadsDirectory() const;
+    void setDownloadsDirectory(const QString &value);
 
 protected:
     void initialize();
