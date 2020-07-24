@@ -45,7 +45,7 @@
           <widget class="QLabel" name="blobTypeLabel">
            <property name="font">
             <font>
-             <pointsize>7</pointsize>
+             <pointsize>9</pointsize>
             </font>
            </property>
            <property name="text">
@@ -70,7 +70,7 @@
           <widget class="QLabel" name="lengthLabel">
            <property name="font">
             <font>
-             <pointsize>7</pointsize>
+             <pointsize>9</pointsize>
             </font>
            </property>
            <property name="text">
@@ -95,7 +95,7 @@
           <widget class="QLabel" name="rateLabel">
            <property name="font">
             <font>
-             <pointsize>7</pointsize>
+             <pointsize>9</pointsize>
             </font>
            </property>
            <property name="text">
@@ -109,7 +109,7 @@
         <widget class="QLabel" name="messagesLabel">
          <property name="font">
           <font>
-           <pointsize>7</pointsize>
+           <pointsize>8</pointsize>
           </font>
          </property>
          <property name="text">

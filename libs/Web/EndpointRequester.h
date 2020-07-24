@@ -1,25 +1,23 @@
-#ifndef NETWORKREQUESTER_H
-#define NETWORKREQUESTER_H
+#ifndef ENDPOINTREQUESTER_H
+#define ENDPOINTREQUESTER_H
 
-#include <QtNetwork>
-#include "JsonValidator.h"
+#include "NetworkManager.h"
+#include "libs/Model/JsonValidator.h"
 
-class NetworkRequester : public QObject
+class EndpointRequester : public NetworkManager
 {
     Q_OBJECT
 
 public:
     const QList<QString> JSON_FIELDS = {"FileName", "Length", "BlobType", "DownloadURI"};
 
-    NetworkRequester(QObject *parent = nullptr);
-    ~NetworkRequester();
+    EndpointRequester(QObject *parent = nullptr);
+    ~EndpointRequester();
 
     void requestFilesDetails(QString url);
     QJsonArray getJsonArray() const;
 
     void validateRequest(QString url);
-    bool isValidRequest();
-    QString getCurrentMessage();
 
 protected slots:
     void filesDetailsReadyRead();
@@ -31,17 +29,10 @@ protected:
     void verifyResult();
     bool validContent(QString content);
 
-    QNetworkAccessManager *manager;
-    QNetworkRequest request;
-    QNetworkReply *reply;
-
     JsonValidator *jsonValidator;
     QJsonArray jsonArray;
 
     QString currentContent;
-
-    bool validRequest;
-    QString currentMessage;
 };
 
-#endif // NETWORKREQUESTER_H
+#endif // ENDPOINTREQUESTER_H

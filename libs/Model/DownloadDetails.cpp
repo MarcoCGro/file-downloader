@@ -6,14 +6,29 @@ DownloadDetails::DownloadDetails(QJsonObject jsonObject)
     this->length = jsonObject["Length"].toString().toDouble();
     this->blobType = jsonObject["BlobType"].toString();
     this->downloadURI = jsonObject["DownloadURI"].toString();
+
+    this->state = DownloadState::NON_STARTED;
+    this->outputFilename = "";
 }
 
-DownloadDetails::DownloadDetails()
+DownloadDetails::DownloadState DownloadDetails::getState() const
 {
-    this->filename = "";
-    this->length = 0.0;
-    this->blobType = "";
-    this->downloadURI = "";
+    return this->state;
+}
+
+void DownloadDetails::setState(const DownloadState &value)
+{
+    this->state = value;
+}
+
+QString DownloadDetails::getOutputFilename() const
+{
+    return this->outputFilename;
+}
+
+void DownloadDetails::setOutputFilename(const QString &path)
+{
+    this->outputFilename = path + "/" + this->filename.replace(' ', '_') + "." + this->blobType;
 }
 
 QString DownloadDetails::getFilename() const
@@ -63,4 +78,7 @@ void DownloadDetails::printData()
     qDebug("      Length: %d", int(this->length));
     qDebug("    BlobType: %s", this->blobType.toStdString().data());
     qDebug(" DownloadURI: %s", this->downloadURI.toStdString().data());
+
+    qDebug("  OutputFile: %s", this->outputFilename.toStdString().data());
+    qDebug("       State: %d", this->state);
 }

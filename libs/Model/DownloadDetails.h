@@ -7,8 +7,20 @@
 class DownloadDetails
 {
 public:
+    enum DownloadState {
+        NON_STARTED = 0,
+        IN_PROGRESS,
+        PAUSED,
+        FINISHED
+    };
+
     DownloadDetails(QJsonObject jsonObject);
-    DownloadDetails();
+
+    DownloadState getState() const;
+    void setState(const DownloadState &value);
+
+    QString getOutputFilename() const;
+    void setOutputFilename(const QString &path);
 
     QString getFilename() const;
     void setFilename(const QString &value);
@@ -25,6 +37,9 @@ public:
     void printData();
 
 protected:
+    DownloadState state;
+    QString outputFilename;
+
     QString filename;
     double length;
     QString blobType;

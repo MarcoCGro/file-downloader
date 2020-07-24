@@ -10,7 +10,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     ui->setupUi(this);
     initialize();
 
-    this->networkRequester = nullptr;
+    this->endpointRequester = nullptr;
 }
 
 SettingsDialog::~SettingsDialog()
@@ -18,9 +18,9 @@ SettingsDialog::~SettingsDialog()
     delete ui;
 }
 
-void SettingsDialog::setNetworkRequester(NetworkRequester *networkRequester)
+void SettingsDialog::setEndpointRequester(EndpointRequester *endpointRequester)
 {
-    this->networkRequester = networkRequester;
+    this->endpointRequester = endpointRequester;
 }
 
 QString SettingsDialog::getFilesUrl() const
@@ -69,23 +69,23 @@ bool SettingsDialog::validateFolder(QString chosenFolder)
 
 bool SettingsDialog::validateUrl(QString url)
 {
-    this->networkRequester->validateRequest(url);
+    this->endpointRequester->validateRequest(url);
 
-    bool result = this->networkRequester->isValidRequest();
+    bool result = this->endpointRequester->isValidRequest();
     if (!result)
-        showMessage(this->networkRequester->getCurrentMessage(), QMessageBox::Critical);
+        showMessage(this->endpointRequester->getCurrentMessage(), QMessageBox::Critical);
 
     return result;
 }
 
 void SettingsDialog::on_syncButton_clicked()
 {
-    if (this->networkRequester == nullptr)
+    if (this->endpointRequester == nullptr)
         return;
 
     bool valid = validateUrl(ui->filesUrlEdit->text());
     if (valid)
-        showMessage(this->networkRequester->getCurrentMessage(), QMessageBox::Information);
+        showMessage(this->endpointRequester->getCurrentMessage(), QMessageBox::Information);
 }
 
 void SettingsDialog::on_directoryButton_clicked()

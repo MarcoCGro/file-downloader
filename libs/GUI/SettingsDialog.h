@@ -5,7 +5,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-#include "libs/Web/NetworkRequester.h"
+#include "libs/Web/EndpointRequester.h"
 
 namespace Ui {
 class SettingsDialog;
@@ -19,7 +19,7 @@ public:
     explicit SettingsDialog(QWidget *parent = nullptr);
     ~SettingsDialog();
 
-    void setNetworkRequester(NetworkRequester *networkRequester);
+    void setEndpointRequester(EndpointRequester *endpointRequester);
 
     QString getFilesUrl() const;
     QString getDownloadsDirectory() const;
@@ -41,7 +41,7 @@ private slots:
     virtual void reject();
 
 protected:
-    NetworkRequester *networkRequester;
+    EndpointRequester *endpointRequester;
 
 private:
     void showMessage(QString message, QMessageBox::Icon msgType = QMessageBox::Warning);

@@ -39,6 +39,11 @@
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
           <widget class="QLineEdit" name="filesUrlEdit">
+           <property name="font">
+            <font>
+             <pointsize>9</pointsize>
+            </font>
+           </property>
            <property name="toolTip">
             <string/>
            </property>
@@ -78,6 +83,11 @@
         <widget class="QLineEdit" name="directoryEdit">
          <property name="enabled">
           <bool>true</bool>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+          </font>
          </property>
          <property name="toolTip">
           <string>Press the folder icon to change this value</string>

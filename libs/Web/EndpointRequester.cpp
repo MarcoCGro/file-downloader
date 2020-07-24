@@ -1,79 +1,63 @@
-#include "NetworkRequester.h"
+#include "EndpointRequester.h"
 
-NetworkRequester::NetworkRequester(QObject *parent)
-    : QObject(parent)
+EndpointRequester::EndpointRequester(QObject *parent) :
+    NetworkManager(parent)
 {
-    this->manager = new QNetworkAccessManager(this);
-    this->reply = nullptr;
-
     this->jsonValidator = new JsonValidator(JSON_FIELDS);
     this->currentContent = "";
-
-    this->validRequest = false;
-    this->currentMessage = "";
 }
 
-NetworkRequester::~NetworkRequester()
+EndpointRequester::~EndpointRequester()
 {
-    if (this->manager != nullptr) {
-        delete this->manager;
-        this->manager = nullptr;
-    }
-
-    if (this->reply != nullptr) {
-        delete this->reply;
-        this->reply = nullptr;
-    }
-
     if (this->jsonValidator != nullptr) {
         delete this->jsonValidator;
         this->jsonValidator = 0;
     }
 }
 
-void NetworkRequester::requestFilesDetails(QString url)
+void EndpointRequester::requestFilesDetails(QString url)
 {
     this->request.setUrl(QUrl(url));
     this->reply = this->manager->get(request);
 
-    connect(this->reply, &QIODevice::readyRead, this, &NetworkRequester::filesDetailsReadyRead);
-    connect(this->reply, &QNetworkReply::finished, this, &NetworkRequester::filesDetailsFinished);
+    connect(this->reply, &QIODevice::readyRead, this, &EndpointRequester::filesDetailsReadyRead);
+    connect(this->reply, &QNetworkReply::finished, this, &EndpointRequester::filesDetailsFinished);
 
     QEventLoop loop;
     connect(this->reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
     loop.exec();
 }
 
-QJsonArray NetworkRequester::getJsonArray() const
+QJsonArray EndpointRequester::getJsonArray() const
 {
     return this->jsonArray;
 }
 
-void NetworkRequester::filesDetailsReadyRead()
+void EndpointRequester::filesDetailsReadyRead()
 {
     verifyResult();
     this->jsonArray = this->jsonValidator->jsonFromString(this->currentContent, &this->validRequest);
 }
 
-void NetworkRequester::filesDetailsFinished()
+void EndpointRequester::filesDetailsFinished()
 {
     this->reply->deleteLater();
     this->reply = nullptr;
 }
 
-void NetworkRequester::validateRequest(QString url)
+void EndpointRequester::validateRequest(QString url)
 {
     this->request.setUrl(QUrl(url));
     this->reply = this->manager->get(request);
 
-    connect(this->reply, &QNetworkReply::finished, this, &NetworkRequester::verificationFinished);
+    connect(this->reply, &QNetworkReply::finished, this, &EndpointRequester::verificationFinished);
 
     QEventLoop loop;
     connect(this->reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
     loop.exec();
 }
 
-void NetworkRequester::verificationFinished()
+void EndpointRequester::verificationFinished()
 {
     verifyResult();
 
@@ -81,7 +65,7 @@ void NetworkRequester::verificationFinished()
     this->reply = nullptr;
 }
 
-void NetworkRequester::verifyResult()
+void EndpointRequester::verifyResult()
 {
     this->validRequest = false;
 
@@ -105,20 +89,10 @@ void NetworkRequester::verifyResult()
     }
 }
 
-bool NetworkRequester::validContent(QString content)
+bool EndpointRequester::validContent(QString content)
 {
     bool isValidJson = false;
     this->jsonValidator->jsonFromString(content, &isValidJson);
 
     return isValidJson;
-}
-
-bool NetworkRequester::isValidRequest()
-{
-    return this->validRequest;
-}
-
-QString NetworkRequester::getCurrentMessage()
-{
-    return this->currentMessage;
 }

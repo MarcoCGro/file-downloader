@@ -20,17 +20,21 @@ SOURCES += \
     libs/GUI/DownloadDetailsWidget.cpp \
     libs/GUI/MainWindow.cpp \
     libs/GUI/SettingsDialog.cpp \
-    libs/Web/DownloadDetails.cpp \
-    libs/Web/JsonValidator.cpp \
-    libs/Web/NetworkRequester.cpp
+    libs/Model/DownloadDetails.cpp \
+    libs/Model/JsonValidator.cpp \
+    libs/Web/EndpointRequester.cpp \
+    libs/Web/FileDownloader.cpp \
+    libs/Web/NetworkManager.cpp
 
 HEADERS += \
     libs/GUI/DownloadDetailsWidget.h \
     libs/GUI/MainWindow.h \
     libs/GUI/SettingsDialog.h \
-    libs/Web/DownloadDetails.h \
-    libs/Web/JsonValidator.h \
-    libs/Web/NetworkRequester.h
+    libs/Model/DownloadDetails.h \
+    libs/Model/JsonValidator.h \
+    libs/Web/EndpointRequester.h \
+    libs/Web/FileDownloader.h \
+    libs/Web/NetworkManager.h
 
 FORMS += \
     views/DownloadDetailsWidget.ui \

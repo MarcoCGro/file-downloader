@@ -7,8 +7,8 @@
 #include "SettingsDialog.h"
 #include "DownloadDetailsWidget.h"
 
-#include "libs/Web/NetworkRequester.h"
-#include "libs/Web/DownloadDetails.h"
+#include "libs/Web/EndpointRequester.h"
+#include "libs/Model/DownloadDetails.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -24,12 +24,12 @@ public:
 
 protected:
     void initialize();
-    void addElementToDownload(DownloadDetails downloadDetails);
+    void addElementToDownload(DownloadDetails *downloadDetails);
 
-    SettingsDialog *settingsDialog;
     QList<DownloadDetailsWidget*> *downloadsWidgets;
 
-    NetworkRequester *networkRequester;
+    SettingsDialog *settingsDialog;
+    EndpointRequester *endpointRequester;
 
 private slots:
     void on_actionRequest_triggered();

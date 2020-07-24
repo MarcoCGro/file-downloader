@@ -8,8 +8,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     initialize();
 
-    this->networkRequester = new NetworkRequester(this);
-    this->settingsDialog->setNetworkRequester(this->networkRequester);
+    this->endpointRequester = new EndpointRequester(this);
+    this->settingsDialog->setEndpointRequester(this->endpointRequester);
 }
 
 void MainWindow::initialize()
@@ -28,28 +28,29 @@ void MainWindow::initialize()
     this->downloadsWidgets = new QList<DownloadDetailsWidget*>();
 }
 
-void MainWindow::addElementToDownload(DownloadDetails downloadDetails)
+void MainWindow::addElementToDownload(DownloadDetails *downloadDetails)
 {
-    DownloadDetailsWidget* curr = new DownloadDetailsWidget;
-    curr->setValues(downloadDetails);
-    this->downloadsWidgets->push_back(curr);
+    DownloadDetailsWidget* currDownloadWidget = new DownloadDetailsWidget;
+    currDownloadWidget->setValues(downloadDetails);
+    this->downloadsWidgets->push_back(currDownloadWidget);
 
     int k = ui->tableWidget->rowCount();
     ui->tableWidget->insertRow(k);
-    ui->tableWidget->setRowHeight(k, curr->height());
-    ui->tableWidget->setCellWidget(k, 0, curr);
+    ui->tableWidget->setRowHeight(k, currDownloadWidget->height());
+    ui->tableWidget->setCellWidget(k, 0, currDownloadWidget);
 }
 
 void MainWindow::on_actionRequest_triggered()
 {
     this->downloadsWidgets->clear();
-    this->networkRequester->requestFilesDetails(this->settingsDialog->getFilesUrl());
+    this->endpointRequester->requestFilesDetails(this->settingsDialog->getFilesUrl());
 
-    if (this->networkRequester->isValidRequest()) {
-        QJsonArray jsonArray = this->networkRequester->getJsonArray();
+    if (this->endpointRequester->isValidRequest()) {
+        QJsonArray jsonArray = this->endpointRequester->getJsonArray();
         for (int i = 0; i < jsonArray.size(); i++) {
-            DownloadDetails currentDownload(jsonArray.at(i).toObject());
-            addElementToDownload(currentDownload);
+            DownloadDetails *currentDetails = new DownloadDetails(jsonArray.at(i).toObject());
+            currentDetails->setOutputFilename(this->settingsDialog->getDownloadsDirectory());
+            addElementToDownload(currentDetails);
         }
     }
 }
@@ -69,8 +70,8 @@ MainWindow::~MainWindow()
         this->downloadsWidgets = nullptr;
     }
 
-    if (this->networkRequester != nullptr) {
-        delete this->networkRequester;
-        this->networkRequester = nullptr;
+    if (this->endpointRequester != nullptr) {
+        delete this->endpointRequester;
+        this->endpointRequester = nullptr;
     }
 }
