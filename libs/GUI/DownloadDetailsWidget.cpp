@@ -1,6 +1,7 @@
 #include "DownloadDetailsWidget.h"
 #include "ui_DownloadDetailsWidget.h"
 
+#include <QDesktopServices>
 #include <qmath.h>
 
 DownloadDetailsWidget::DownloadDetailsWidget(QWidget *parent) :
@@ -94,6 +95,8 @@ void DownloadDetailsWidget::on_stateButton_pressed()
         pauseDownload();
     else if (this->downloadDetails->getState() == DownloadDetails::DownloadState::PAUSED)
         resumeDownload();
+    else if (this->downloadDetails->getState() == DownloadDetails::DownloadState::FINISHED)
+        openDownload();
 }
 
 void DownloadDetailsWidget::updateProgress(int bytesReceived)
@@ -123,9 +126,7 @@ void DownloadDetailsWidget::recoverDownload()
         ui->progressBar->show();
     }
     else if (this->downloadDetails->getState() == DownloadDetails::DownloadState::FINISHED) {
-        ui->stateButton->setText("Done");
-        ui->stateButton->setEnabled(false);
-
+        ui->stateButton->setText("Open");
         return;
     }
     else {
@@ -164,12 +165,15 @@ void DownloadDetailsWidget::resumeDownload()
     this->fileDownloader->resumeDownload();
 }
 
+void DownloadDetailsWidget::openDownload()
+{
+    QDesktopServices::openUrl(QUrl::fromLocalFile(this->downloadDetails->getOutputFilename()));
+}
+
 void DownloadDetailsWidget::finishDownload()
 {
     if (this->fileDownloader->isValidRequest()) {
-        ui->stateButton->setText("Done");
-        ui->stateButton->setEnabled(false);
-
+        ui->stateButton->setText("Open");
         this->downloadDetails->setState(DownloadDetails::DownloadState::FINISHED);
     }
     else {

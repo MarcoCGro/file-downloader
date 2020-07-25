@@ -35,6 +35,7 @@ protected:
     void startDownload();
     void pauseDownload();
     void resumeDownload();
+    void openDownload();
 
     FileDownloader *fileDownloader;
     DownloadDetails *downloadDetails;
