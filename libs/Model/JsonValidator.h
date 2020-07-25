@@ -4,6 +4,12 @@
 #include <QJsonArray>
 #include <QList>
 
+/**
+ * @brief The JsonValidator class
+ *
+ * @author Marco A.Caballero Gro.
+ * @version 1.0
+ */
 class JsonValidator
 {
 public:

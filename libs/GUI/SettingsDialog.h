@@ -11,6 +11,12 @@ namespace Ui {
 class SettingsDialog;
 }
 
+/**
+ * @brief The SettingsDialog class
+ *
+ * @author Marco A.Caballero Gro.
+ * @version 1.0
+ */
 class SettingsDialog : public QDialog
 {
     Q_OBJECT

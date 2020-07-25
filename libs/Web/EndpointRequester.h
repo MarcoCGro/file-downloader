@@ -4,6 +4,12 @@
 #include "NetworkManager.h"
 #include "libs/Model/JsonValidator.h"
 
+/**
+ * @brief The EndpointRequester class
+ *
+ * @author Marco A.Caballero Gro.
+ * @version 1.0
+ */
 class EndpointRequester : public NetworkManager
 {
     Q_OBJECT

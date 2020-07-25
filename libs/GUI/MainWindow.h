@@ -16,6 +16,12 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
+/**
+ * @brief The MainWindow class
+ *
+ * @author Marco A.Caballero Gro.
+ * @version 1.0
+ */
 class MainWindow : public QMainWindow
 {
     Q_OBJECT

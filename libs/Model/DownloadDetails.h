@@ -4,6 +4,12 @@
 #include <QJsonObject>
 #include <QString>
 
+/**
+ * @brief The DownloadDetails class
+ *
+ * @author Marco A.Caballero Gro.
+ * @version 1.0
+ */
 class DownloadDetails
 {
 public:

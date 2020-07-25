@@ -104,6 +104,9 @@ void DownloadDetailsWidget::updateProgress(int bytesReceived)
     if (!ui->messagesLabel->isHidden())
         ui->messagesLabel->hide();
 
+    if (!ui->stateButton->isEnabled())
+        ui->stateButton->setEnabled(true);
+
     ui->progressBar->setValue(bytesReceived);
     ui->rateLabel->setText(getBytesLabel(bytesReceived));
     ui->rateLabel->show();
@@ -113,6 +116,7 @@ void DownloadDetailsWidget::updateProgress(int bytesReceived)
 
 void DownloadDetailsWidget::recoverDownloadMessage()
 {
+    ui->progressBar->hide();
     ui->messagesLabel->setText("Please, wait, your download is being recovered...");
     ui->messagesLabel->show();
 }
@@ -121,9 +125,6 @@ void DownloadDetailsWidget::recoverDownload()
 {
     if (this->downloadDetails->getState() == DownloadDetails::DownloadState::PAUSED) {
         ui->stateButton->setText("Resume");
-
-        ui->progressBar->setValue(this->downloadDetails->getNumReceivedBytes());
-        ui->progressBar->show();
     }
     else if (this->downloadDetails->getState() == DownloadDetails::DownloadState::FINISHED) {
         ui->stateButton->setText("Open");
@@ -159,6 +160,12 @@ void DownloadDetailsWidget::pauseDownload()
 void DownloadDetailsWidget::resumeDownload()
 {
     ui->stateButton->setText("Pause");
+    ui->stateButton->setEnabled(false);
+
+    if (ui->progressBar->isHidden()) {
+        ui->progressBar->setValue(this->downloadDetails->getNumReceivedBytes());
+        ui->progressBar->show();
+    }
 
     this->downloadDetails->setState(DownloadDetails::DownloadState::IN_PROGRESS);
 

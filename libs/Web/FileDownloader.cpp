@@ -77,6 +77,7 @@ void FileDownloader::pauseDownload()
 {
     disconnect(this->reply, &QNetworkReply::downloadProgress, this, &FileDownloader::downloadProgress);
     disconnect(this->reply, &QNetworkReply::finished, this, &FileDownloader::downloadFinished);
+    disconnect(this->reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(reportError(QNetworkReply::NetworkError)));
 
     this->reply->abort();
     this->file->flush();
@@ -111,6 +112,7 @@ void FileDownloader::resumeDownload()
 
     connect(this->reply, &QNetworkReply::downloadProgress, this, &FileDownloader::downloadProgress);
     connect(this->reply, &QNetworkReply::finished, this, &FileDownloader::downloadFinished);
+    connect(this->reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(reportError(QNetworkReply::NetworkError)));
 }
 
 void FileDownloader::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)

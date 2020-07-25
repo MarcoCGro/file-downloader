@@ -4,6 +4,12 @@
 #include "NetworkManager.h"
 #include "libs/Model/DownloadDetails.h"
 
+/**
+ * @brief The FileDownloader class
+ *
+ * @author Marco A.Caballero Gro.
+ * @version 1.0
+ */
 class FileDownloader : public NetworkManager
 {
     Q_OBJECT

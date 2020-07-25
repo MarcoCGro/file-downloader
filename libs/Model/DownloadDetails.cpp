@@ -78,7 +78,8 @@ QString DownloadDetails::getOutputFilename() const
 
 void DownloadDetails::setOutputFilename(const QString &path)
 {
-    this->outputFilename = path + QDir::separator() + this->filename.replace(' ', '_') + "." + this->blobType;
+    QString origFilename = QString(this->filename);
+    this->outputFilename = path + QDir::separator() + origFilename.replace(' ', '_') + "." + this->blobType;
 }
 
 QString DownloadDetails::getFilename() const

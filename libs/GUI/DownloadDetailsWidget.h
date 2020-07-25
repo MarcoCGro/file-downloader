@@ -10,6 +10,12 @@ namespace Ui {
 class DownloadDetailsWidget;
 }
 
+/**
+ * @brief The DownloadDetailsWidget class
+ *
+ * @author Marco A.Caballero Gro.
+ * @version 1.0
+ */
 class DownloadDetailsWidget : public QWidget
 {
     Q_OBJECT

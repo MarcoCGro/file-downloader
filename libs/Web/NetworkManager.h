@@ -3,6 +3,12 @@
 
 #include <QtNetwork>
 
+/**
+ * @brief The NetworkManager class
+ *
+ * @author Marco A.Caballero Gro.
+ * @version 1.0
+ */
 class NetworkManager : public QObject
 {
     Q_OBJECT
