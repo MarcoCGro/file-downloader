@@ -26,8 +26,11 @@ protected slots:
     void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
     void downloadFinished();
 
+    void reportError(QNetworkReply::NetworkError error);
+
 protected:
     DownloadDetails *currentDownloadDetails;
+    QNetworkReply::NetworkError currentError;
     bool acceptRanges;
     QFile *file;
 };

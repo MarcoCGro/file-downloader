@@ -68,14 +68,17 @@ void MainWindow::setDownloads(QJsonArray jsonArray)
 
 void MainWindow::addElementToDownload(DownloadDetails *downloadDetails)
 {
-    DownloadDetailsWidget* currDownloadWidget = new DownloadDetailsWidget;
-    currDownloadWidget->setValues(downloadDetails);
+    int k = ui->tableWidget->rowCount();
+
+    DownloadDetailsWidget *currDownloadWidget = new DownloadDetailsWidget;
+    currDownloadWidget->setValues(k, downloadDetails);
     this->downloadsWidgets->push_back(currDownloadWidget);
 
-    int k = ui->tableWidget->rowCount();
     ui->tableWidget->insertRow(k);
     ui->tableWidget->setRowHeight(k, currDownloadWidget->height());
     ui->tableWidget->setCellWidget(k, 0, currDownloadWidget);
+
+    connect(currDownloadWidget, &DownloadDetailsWidget::removeWidget, this, &MainWindow::removeDownloadWidget);
 }
 
 void MainWindow::recoverCurrentDownloads()
@@ -98,6 +101,7 @@ void MainWindow::saveCurrentDownloads()
     preferences.insert("DownloadsURL", this->settingsDialog->getFilesUrl());
 
     QJsonArray jsonArray;
+
     for (int i = 0; i < this->downloadsWidgets->size(); i++) {
         this->downloadsWidgets->at(i)->releaseDownload();
         QJsonObject jsonObject = this->downloadsWidgets->at(i)->getValuesAsJson();
@@ -121,7 +125,6 @@ void MainWindow::saveCurrentDownloads()
 
 void MainWindow::on_actionRequest_triggered()
 {
-    this->downloadsWidgets->clear();
     this->endpointRequester->requestFilesDetails(this->settingsDialog->getFilesUrl());
 
     if (this->endpointRequester->isValidRequest()) {
@@ -136,6 +139,18 @@ void MainWindow::on_actionRequest_triggered()
 void MainWindow::on_actionSettings_triggered()
 {
     this->settingsDialog->show();
+}
+
+void MainWindow::removeDownloadWidget(int widgetId)
+{
+    for (int i = widgetId; i < this->downloadsWidgets->size(); i++)
+        (this->downloadsWidgets->at(i))->updateId(widgetId);
+
+    (this->downloadsWidgets->at(widgetId))->releaseDownload();
+    disconnect(this->downloadsWidgets->at(widgetId), &DownloadDetailsWidget::removeWidget, this, &MainWindow::removeDownloadWidget);
+
+    this->downloadsWidgets->removeAt(widgetId);
+    ui->tableWidget->removeRow(widgetId);
 }
 
 void MainWindow::showMessage(QString message, QMessageBox::Icon msgType)

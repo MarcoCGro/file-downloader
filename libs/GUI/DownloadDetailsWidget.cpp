@@ -25,6 +25,9 @@ void DownloadDetailsWidget::initialize()
 {
     this->resize(this->width(), 90);
 
+    this->widgetId = 0;
+    ui->removeButton->setIcon(ui->actionRemove->icon());
+
     ui->filenameLabel->setText("[filename]");
     ui->blobTypeLabel->setText("[type]");
     ui->rateLabel->setText("[rate]");
@@ -45,8 +48,9 @@ void DownloadDetailsWidget::initialize()
     connect(this->fileDownloader, &FileDownloader::finished, this, &DownloadDetailsWidget::finishDownload);
 }
 
-void DownloadDetailsWidget::setValues(DownloadDetails *downloadDetails)
+void DownloadDetailsWidget::setValues(int widgetId, DownloadDetails *downloadDetails)
 {
+    this->widgetId = widgetId;
     this->downloadDetails = downloadDetails;
 
     ui->filenameLabel->setText(this->downloadDetails->getFilename());
@@ -60,6 +64,11 @@ void DownloadDetailsWidget::setValues(DownloadDetails *downloadDetails)
     ui->progressBar->setRange(0, this->downloadDetails->getLength());
 }
 
+void DownloadDetailsWidget::updateId(int id)
+{
+    this->widgetId = id;
+}
+
 QJsonObject DownloadDetailsWidget::getValuesAsJson()
 {
     return this->downloadDetails->getValuesAsJson();
@@ -69,6 +78,11 @@ void DownloadDetailsWidget::releaseDownload()
 {
     if (this->downloadDetails->getState() == DownloadDetails::DownloadState::IN_PROGRESS)
         this->pauseDownload();
+}
+
+void DownloadDetailsWidget::on_removeButton_clicked()
+{
+    emit removeWidget(this->widgetId);
 }
 
 void DownloadDetailsWidget::on_stateButton_pressed()
@@ -111,6 +125,8 @@ void DownloadDetailsWidget::recoverDownload()
     else if (this->downloadDetails->getState() == DownloadDetails::DownloadState::FINISHED) {
         ui->stateButton->setText("Done");
         ui->stateButton->setEnabled(false);
+
+        return;
     }
     else {
         return;

@@ -4,5 +4,6 @@
         <file>icons/settings_icon.png</file>
         <file>icons/folder_icon.png</file>
         <file>icons/sync_icon.png</file>
+        <file>icons/remove_icon.png</file>
     </qresource>
 </RCC>

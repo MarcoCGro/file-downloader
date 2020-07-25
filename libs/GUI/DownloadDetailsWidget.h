@@ -18,11 +18,16 @@ public:
     explicit DownloadDetailsWidget(QWidget *parent = nullptr);
     ~DownloadDetailsWidget();
 
-    void setValues(DownloadDetails *downloadDetails);
+    void setValues(int widgetId, DownloadDetails *downloadDetails);
+    void updateId(int id);
+
     QJsonObject getValuesAsJson();
 
     void recoverDownload();
     void releaseDownload();
+
+signals:
+    void removeWidget(int id);
 
 protected:
     void initialize();
@@ -34,7 +39,10 @@ protected:
     FileDownloader *fileDownloader;
     DownloadDetails *downloadDetails;
 
+    int widgetId;
+
 protected slots:
+    void on_removeButton_clicked();
     void on_stateButton_pressed();
 
     void updateProgress(int bytesReceived);

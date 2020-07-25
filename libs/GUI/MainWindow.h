@@ -49,9 +49,11 @@ protected:
 
     QMessageBox messageBox;
 
-private slots:
+protected slots:
     void on_actionRequest_triggered();
     void on_actionSettings_triggered();
+
+    void removeDownloadWidget(int widgetId);
 
 private:
     Ui::MainWindow *ui;

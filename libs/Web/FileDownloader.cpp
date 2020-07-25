@@ -4,6 +4,7 @@ FileDownloader::FileDownloader(QObject *parent)
     : NetworkManager(parent)
 {
     this->currentDownloadDetails = nullptr;
+    this->currentError = QNetworkReply::NoError;
     this->file = nullptr;
     this->acceptRanges = false;
 }
@@ -45,6 +46,7 @@ void FileDownloader::startDownload(DownloadDetails *downloadDetails)
 
     connect(this->reply, &QNetworkReply::downloadProgress, this, &FileDownloader::downloadProgress);
     connect(this->reply, &QNetworkReply::finished, this, &FileDownloader::downloadFinished);
+    connect(this->reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(reportError(QNetworkReply::NetworkError)));
 }
 
 void FileDownloader::recoverDownload(DownloadDetails *downloadDetails)
@@ -136,7 +138,11 @@ void FileDownloader::downloadFinished()
         this->file->close();
         this->file = nullptr;
 
-        if (this->currentDownloadDetails->getLength() == int(finalSize)) {
+        if (this->currentError != QNetworkReply::NoError) {
+            this->validRequest = false;
+            this->currentMessage = "Selected file can't be downloaded.";
+        }
+        else if (this->currentDownloadDetails->getLength() == int(finalSize)) {
             QFile::rename(tmpFilename, this->currentDownloadDetails->getOutputFilename());
             this->validRequest = true;
             this->currentMessage = "";
@@ -155,4 +161,9 @@ void FileDownloader::downloadFinished()
     this->reply = nullptr;
 
     emit finished();
- }
+}
+
+void FileDownloader::reportError(QNetworkReply::NetworkError error)
+{
+    this->currentError = error;
+}
