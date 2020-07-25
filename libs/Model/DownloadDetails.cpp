@@ -23,7 +23,7 @@ DownloadDetails::DownloadDetails(QJsonObject jsonObject)
     if (currState != "0")
         this->numReceivedBytes = currBytesReceived.toInt();
 
-    this->outputFilename = "";
+    this->outputFilename = jsonObject["OutputFilename"].toString();
 }
 
 QJsonObject DownloadDetails::getValuesAsJson()
@@ -37,6 +37,7 @@ QJsonObject DownloadDetails::getValuesAsJson()
     jsonObject.insert("State", QString::number(this->state));
     jsonObject.insert("AcceptRanges", this->acceptRanges ? "true" : "false");
     jsonObject.insert("NumReceivedBytes", QVariant(this->numReceivedBytes).toString());
+    jsonObject.insert("OutputFilename", this->outputFilename);
 
     return jsonObject;
 }
@@ -79,7 +80,12 @@ QString DownloadDetails::getOutputFilename() const
 void DownloadDetails::setOutputFilename(const QString &path)
 {
     QString origFilename = QString(this->filename);
-    this->outputFilename = path + QDir::separator() + origFilename.replace(' ', '_') + "." + this->blobType;
+    this->outputFilename = path + QDir::separator() + origFilename.replace(' ', '_') + "." + this->blobType + ".part";
+}
+
+void DownloadDetails::setFinalFilename(const QString &filename)
+{
+    this->outputFilename = filename;
 }
 
 QString DownloadDetails::getFilename() const

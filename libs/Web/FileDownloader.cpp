@@ -19,14 +19,15 @@ void FileDownloader::startDownload(DownloadDetails *downloadDetails)
 {
     this->currentDownloadDetails = downloadDetails;
 
-    QString filename = this->currentDownloadDetails->getOutputFilename();
-
-    this->file = new QFile(filename + ".part");
-    if (this->file->exists()) {
-        QFile::remove(filename + ".part");
+    QString tmpFilename = this->currentDownloadDetails->getOutputFilename();
+    this->file = new QFile(tmpFilename);
+    if (QFileInfo::exists(tmpFilename)) {
+        QFile::remove(tmpFilename);
         this->file->remove();
 
-        this->file = new QFile(filename + ".part");
+        QString auxFilename = getNextAvailableName(tmpFilename);
+        this->currentDownloadDetails->setFinalFilename(auxFilename);
+        this->file = new QFile(auxFilename);
     }
 
     if (!this->file->open(QIODevice::ReadWrite | QIODevice::Append)) {
@@ -54,14 +55,14 @@ void FileDownloader::recoverDownload(DownloadDetails *downloadDetails)
     this->currentDownloadDetails = downloadDetails;
     this->acceptRanges = this->currentDownloadDetails->getAcceptRanges();
 
-    QString filename = this->currentDownloadDetails->getOutputFilename();
+    QString tmpFilename = this->currentDownloadDetails->getOutputFilename();
 
-    this->file = new QFile(filename + ".part");
+    this->file = new QFile(tmpFilename);
     if (!this->acceptRanges) {
-        QFile::remove(filename + ".part");
+        QFile::remove(tmpFilename);
         this->file->remove();
 
-        this->file = new QFile(filename + ".part");
+        this->file = new QFile(tmpFilename);
     }
 
     if (!this->file->open(QIODevice::ReadWrite | QIODevice::Append)) {
@@ -97,10 +98,10 @@ void FileDownloader::resumeDownload()
         this->request.setRawHeader("Range", rangeHeaderValue);
     }
     else {
-        QString filename = this->currentDownloadDetails->getOutputFilename();
+        QString tmpFilename = this->currentDownloadDetails->getOutputFilename();
         this->file->remove();
 
-        this->file = new QFile(filename + ".part");
+        this->file = new QFile(tmpFilename);
         if (!this->file->open(QIODevice::ReadWrite | QIODevice::Append)) {
             this->validRequest = false;
             this->currentMessage = "Problem reopening original file for download [ " + this->currentDownloadDetails->getDownloadURI() + " ]";
@@ -145,18 +146,30 @@ void FileDownloader::downloadFinished()
             this->currentMessage = "Selected file can't be downloaded.";
         }
         else if (this->currentDownloadDetails->getLength() == int(finalSize)) {
-            QFile::rename(tmpFilename, this->currentDownloadDetails->getOutputFilename());
-            this->validRequest = true;
-            this->currentMessage = "";
+            QString tmpFilename = this->currentDownloadDetails->getOutputFilename();
+            int lastIdx = tmpFilename.lastIndexOf(".");
+            QString finalFilename = tmpFilename.left(lastIdx);
+
+            bool result = QFile::rename(tmpFilename, finalFilename);
+            if (result) {
+                this->validRequest = true;
+                this->currentMessage = finalFilename;
+
+                this->currentDownloadDetails->setFinalFilename(finalFilename);
+            }
+            else {
+                this->validRequest = false;
+                this->currentMessage = "Your file wasn't saved correctly.";
+            }
         }
-        else {
+        else {            
             this->validRequest = false;
             this->currentMessage = "Final length of your file is invalid, try another download.";
         }
     }
     else {
         this->validRequest = false;
-        this->currentMessage = "Your file wasn't saved correctly.";
+        this->currentMessage = "Something wrong when file was written.";
     }
 
     this->reply->deleteLater();
@@ -168,4 +181,24 @@ void FileDownloader::downloadFinished()
 void FileDownloader::reportError(QNetworkReply::NetworkError error)
 {
     this->currentError = error;
+}
+
+QString FileDownloader::getNextAvailableName(QString tmpFilename)
+{
+    QString availableFilename = "";
+
+    int lastIdx = tmpFilename.lastIndexOf('.');
+    QString origFilename = tmpFilename.left(lastIdx);
+
+    lastIdx = origFilename.lastIndexOf('.');
+    QString baseName = origFilename.left(lastIdx);
+    QString ext = origFilename.mid(lastIdx + 1);
+
+    int k = 1;
+    do {
+        availableFilename = baseName + "_" + QString::number(k) + "." + ext + ".part";
+        k++;
+    } while (QFileInfo::exists(availableFilename));
+
+    return availableFilename;
 }

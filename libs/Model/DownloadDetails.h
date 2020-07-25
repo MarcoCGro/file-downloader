@@ -35,6 +35,7 @@ public:
 
     QString getOutputFilename() const;
     void setOutputFilename(const QString &path);
+    void setFinalFilename(const QString &filename);
 
     QString getFilename() const;
     void setFilename(const QString &value);

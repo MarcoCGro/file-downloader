@@ -27,7 +27,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    const QList<QString> JSON_EXTENDED_FIELDS = {"FileName", "Length", "BlobType", "DownloadURI", "State", "AcceptRanges", "NumReceivedBytes"};
+    const QList<QString> JSON_EXTENDED_FIELDS = {"FileName", "Length", "BlobType", "DownloadURI", "State", "AcceptRanges", "NumReceivedBytes", "OutputFilename"};
     const QString preferencesFilename = "settings.json";
 
     MainWindow(QWidget *parent = nullptr);

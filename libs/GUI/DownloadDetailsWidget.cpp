@@ -108,6 +108,8 @@ void DownloadDetailsWidget::updateProgress(int bytesReceived)
         ui->stateButton->setEnabled(true);
 
     ui->progressBar->setValue(bytesReceived);
+    ui->progressBar->show();
+
     ui->rateLabel->setText(getBytesLabel(bytesReceived));
     ui->rateLabel->show();
 
@@ -128,6 +130,10 @@ void DownloadDetailsWidget::recoverDownload()
     }
     else if (this->downloadDetails->getState() == DownloadDetails::DownloadState::FINISHED) {
         ui->stateButton->setText("Open");
+
+        ui->messagesLabel->setText(this->downloadDetails->getOutputFilename());
+        ui->messagesLabel->show();
+
         return;
     }
     else {
@@ -162,11 +168,6 @@ void DownloadDetailsWidget::resumeDownload()
     ui->stateButton->setText("Pause");
     ui->stateButton->setEnabled(false);
 
-    if (ui->progressBar->isHidden()) {
-        ui->progressBar->setValue(this->downloadDetails->getNumReceivedBytes());
-        ui->progressBar->show();
-    }
-
     this->downloadDetails->setState(DownloadDetails::DownloadState::IN_PROGRESS);
 
     this->fileDownloader->resumeDownload();
@@ -174,7 +175,11 @@ void DownloadDetailsWidget::resumeDownload()
 
 void DownloadDetailsWidget::openDownload()
 {
-    QDesktopServices::openUrl(QUrl::fromLocalFile(this->downloadDetails->getOutputFilename()));
+    bool result = QDesktopServices::openUrl(QUrl::fromLocalFile(this->downloadDetails->getOutputFilename()));
+    if (!result) {
+        ui->messagesLabel->setText("Selected file couldn't be opened");
+        ui->messagesLabel->show();
+    }
 }
 
 void DownloadDetailsWidget::finishDownload()
@@ -185,13 +190,14 @@ void DownloadDetailsWidget::finishDownload()
     }
     else {
         ui->stateButton->setText("Download");
-        ui->stateButton->setEnabled(true);
-
-        ui->messagesLabel->setText(this->fileDownloader->getCurrentMessage());
-        ui->messagesLabel->show();
 
         this->downloadDetails->setState(DownloadDetails::DownloadState::NON_STARTED);
+        this->downloadDetails->setAcceptRanges(false);
+        this->downloadDetails->setNumReceivedBytes(0);
     }
+
+    ui->messagesLabel->setText(this->fileDownloader->getCurrentMessage());
+    ui->messagesLabel->show();
 
     ui->progressBar->hide();
     ui->rateLabel->hide();

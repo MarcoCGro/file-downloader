@@ -61,7 +61,8 @@ void MainWindow::setDownloads(QJsonArray jsonArray)
 {
     for (int i = 0; i < jsonArray.size(); i++) {
         DownloadDetails *currentDetails = new DownloadDetails(jsonArray.at(i).toObject());
-        currentDetails->setOutputFilename(this->settingsDialog->getDownloadsDirectory());
+        if (currentDetails->getState() == DownloadDetails::DownloadState::NON_STARTED)
+            currentDetails->setOutputFilename(this->settingsDialog->getDownloadsDirectory());
         addElementToDownload(currentDetails);
     }
 }
@@ -143,8 +144,8 @@ void MainWindow::on_actionSettings_triggered()
 
 void MainWindow::removeDownloadWidget(int widgetId)
 {
-    for (int i = widgetId; i < this->downloadsWidgets->size(); i++)
-        (this->downloadsWidgets->at(i))->updateId(widgetId);
+    for (int i = widgetId + 1; i < this->downloadsWidgets->size(); i++)
+        (this->downloadsWidgets->at(i))->updateId(i - 1);
 
     (this->downloadsWidgets->at(widgetId))->releaseDownload();
     disconnect(this->downloadsWidgets->at(widgetId), &DownloadDetailsWidget::removeWidget, this, &MainWindow::removeDownloadWidget);

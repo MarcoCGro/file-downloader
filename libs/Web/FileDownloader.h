@@ -35,6 +35,8 @@ protected slots:
     void reportError(QNetworkReply::NetworkError error);
 
 protected:
+    QString getNextAvailableName(QString origFilename);
+
     DownloadDetails *currentDownloadDetails;
     QNetworkReply::NetworkError currentError;
     bool acceptRanges;
