@@ -5,7 +5,8 @@
 #include <QString>
 
 /**
- * @brief The DownloadDetails class
+ * @brief The DownloadDetails class defines and manages the fields
+ * of a download as its state and current number of received bytes.
  *
  * @author Marco A.Caballero Gro.
  * @version 1.0
@@ -13,6 +14,9 @@
 class DownloadDetails
 {
 public:
+    /**
+     * @brief Defines the current state for a download instance
+     */
     enum DownloadState {
         NON_STARTED = 0,
         IN_PROGRESS,
@@ -20,8 +24,24 @@ public:
         FINISHED
     };
 
+    /**
+     * @brief Build an instance from the QJsonObject provided
+     * after a file reading
+     *
+     * @param jsonObject Contains the values and current state
+     * for this download instance
+     *
+     * @see MainWindow::loadCurrentDownloads
+     */
     DownloadDetails(QJsonObject jsonObject);
 
+    /**
+     * @brief Build a complete version of the instance as a json
+     * object which can be saves to disk eventually
+     *
+     * @return QJonObject The final details for this download
+     * instance
+     */
     QJsonObject getValuesAsJson();
 
     DownloadState getState() const;

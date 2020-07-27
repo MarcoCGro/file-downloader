@@ -12,21 +12,32 @@ class SettingsDialog;
 }
 
 /**
- * @brief The SettingsDialog class
+ * @brief The SettingsDialog class contains two fields (download URL and
+ * downloads directory) to configure and save the files to be requested.
  *
  * @author Marco A.Caballero Gro.
  * @version 1.0
+ *
+ * @see MainWindow, EndpointRequester
  */
 class SettingsDialog : public QDialog
 {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Default downloads url provided
+     */
     const QString DEFAULT_DOWNLOADS_URL = "https://altomobile.blob.core.windows.net/api/files.json";
 
     explicit SettingsDialog(QWidget *parent = nullptr);
     ~SettingsDialog();
 
+    /**
+     * @brief Sets the requester to obtain the files details to download
+     *
+     * @param endpointRequester Requester instance
+     */
     void setEndpointRequester(EndpointRequester *endpointRequester);
 
     QString getFilesUrl() const;

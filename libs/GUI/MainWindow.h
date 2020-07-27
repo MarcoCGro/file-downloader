@@ -17,17 +17,28 @@ namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
 /**
- * @brief The MainWindow class
+ * @brief The MainWindow class allows to manage a downloads list through
+ * a table view. Also, a tools bar contains options to request/build this
+ * list and invoke user setttings.
  *
  * @author Marco A.Caballero Gro.
  * @version 1.0
+ *
+ * @see DownloadDetailsWidget, SettingsDialog
  */
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Name of the fields labels contained in a DownloadDetails object
+     */
     const QList<QString> JSON_EXTENDED_FIELDS = {"FileName", "Length", "BlobType", "DownloadURI", "State", "AcceptRanges", "NumReceivedBytes", "OutputFilename"};
+    /**
+     * @brief Name of the file which will save the user settings and the list
+     * of current downloads shown
+     */
     const QString preferencesFilename = "settings.json";
 
     MainWindow(QWidget *parent = nullptr);
