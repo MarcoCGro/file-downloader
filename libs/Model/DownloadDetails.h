@@ -50,8 +50,8 @@ public:
     bool getAcceptRanges() const;
     void setAcceptRanges(bool value);
 
-    int getNumReceivedBytes() const;
-    void setNumReceivedBytes(int value);
+    double getNumReceivedBytes() const;
+    void setNumReceivedBytes(double value);
 
     QString getOutputFilename() const;
     void setOutputFilename(const QString &path);
@@ -60,8 +60,8 @@ public:
     QString getFilename() const;
     void setFilename(const QString &value);
 
-    int getLength() const;
-    void setLength(int value);
+    double getLength() const;
+    void setLength(double value);
 
     QString getBlobType() const;
     void setBlobType(const QString &value);
@@ -74,7 +74,7 @@ public:
 protected:
     DownloadState state;
     bool acceptRanges;
-    int numReceivedBytes;
+    double numReceivedBytes;
     QString outputFilename;
 
     QString filename;

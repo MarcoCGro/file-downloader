@@ -96,7 +96,7 @@ protected slots:
     void on_removeButton_clicked();
     void on_stateButton_pressed();
 
-    void updateProgress(int bytesReceived);
+    void updateProgress(double bytesReceived);
     void finishDownload();
 
     void recoverDownloadMessage();

@@ -36,14 +36,34 @@ void FileDownloader::startDownload(DownloadDetails *downloadDetails)
         return;
     }
 
+    QString keyID = "0024fb44d563e250000000009";
+    QString applicationKey = "K002bo/v9sJ/RDqTfS946xkPkQizzo4";
+    QString auth_params = keyID + ":" + applicationKey;
+
+    QByteArray byteArray = auth_params.toLocal8Bit().toBase64();
+    //QString auth_basic = "Basic: " + byteArray.toBase64();
+    QString auth_basic = "4_0024fb44d563e250000000009_01963e78_d9a7c0_acct_BT3-yh_xS0vLeFo5GafTWyNS7x0=";
+
+    qDebug("\n [  auth: %s  ]", auth_basic.toStdString().data());
+
     this->request = QNetworkRequest(QUrl(this->currentDownloadDetails->getDownloadURI()));
+    this->request.setAttribute(QNetworkRequest::HttpPipeliningAllowedAttribute, true);
+    this->request.setRawHeader("Authorization", auth_basic.toLocal8Bit());
+/*
+    qint64 currentBytes = this->currentDownloadDetails->getNumReceivedBytes();
+    QByteArray rangeHeaderValue = "bytes=" + QByteArray::number(currentBytes) + "-" + QByteArray::number(338304585);
+    qDebug(" Range: %s ", rangeHeaderValue.toStdString().data());
+    this->request.setRawHeader(QByteArray("Range"), rangeHeaderValue);
+*/
     this->reply = this->manager->get(request);
 
     if (this->reply->hasRawHeader("Accept-Ranges")) {
+        qDebug("Something weird");
         QString qstrAcceptRanges = this->reply->rawHeader("Accept-Ranges");
         this->acceptRanges = qstrAcceptRanges.compare("bytes", Qt::CaseInsensitive) == 0;
         this->currentDownloadDetails->setAcceptRanges(this->acceptRanges);
     }
+    this->acceptRanges = true;
 
     connect(this->reply, &QNetworkReply::downloadProgress, this, &FileDownloader::downloadProgress);
     connect(this->reply, &QNetworkReply::finished, this, &FileDownloader::downloadFinished);
@@ -54,6 +74,7 @@ void FileDownloader::recoverDownload(DownloadDetails *downloadDetails)
 {
     this->currentDownloadDetails = downloadDetails;
     this->acceptRanges = this->currentDownloadDetails->getAcceptRanges();
+    this->acceptRanges = true;
 
     QString tmpFilename = this->currentDownloadDetails->getOutputFilename();
 
@@ -72,6 +93,17 @@ void FileDownloader::recoverDownload(DownloadDetails *downloadDetails)
     }
 
     this->request = QNetworkRequest(QUrl(this->currentDownloadDetails->getDownloadURI()));
+    this->request.setAttribute(QNetworkRequest::HttpPipeliningAllowedAttribute, true);
+
+    QString auth_basic = "4_0024fb44d563e250000000009_01963e78_d9a7c0_acct_BT3-yh_xS0vLeFo5GafTWyNS7x0=";
+    this->request.setRawHeader("Authorization", auth_basic.toLocal8Bit());
+/*
+    qDebug() << request.url().toString();
+    const QList<QByteArray>& rawHeaderList(request.rawHeaderList());
+    foreach (QByteArray rawHeader, rawHeaderList) {
+      qDebug() << request.rawHeader(rawHeader);
+    }
+*/
 }
 
 void FileDownloader::pauseDownload()
@@ -91,11 +123,14 @@ void FileDownloader::pauseDownload()
 
 void FileDownloader::resumeDownload()
 {
+    this->acceptRanges = true;
+
     if (this->acceptRanges) {
         qint64 currentBytes = this->currentDownloadDetails->getNumReceivedBytes();
-        QByteArray rangeHeaderValue = "bytes=" + QByteArray::number(currentBytes) + "-" + QByteArray::number(this->currentDownloadDetails->getLength());
+        //QByteArray rangeHeaderValue = "bytes=" + QByteArray::number(currentBytes) + "-" + QByteArray::number(this->currentDownloadDetails->getLength());
+        QByteArray rangeHeaderValue = "bytes=" + QByteArray::number(currentBytes) + "-" + QByteArray::number(338304585);
         qDebug(" Range: %s ", rangeHeaderValue.toStdString().data());
-        this->request.setRawHeader("Range", rangeHeaderValue);
+        this->request.setRawHeader(QByteArray("Range"), rangeHeaderValue);
     }
     else {
         QString tmpFilename = this->currentDownloadDetails->getOutputFilename();
@@ -107,6 +142,12 @@ void FileDownloader::resumeDownload()
             this->currentMessage = "Problem reopening original file for download [ " + this->currentDownloadDetails->getDownloadURI() + " ]";
             return;
         }
+    }
+
+    qDebug() << request.url().toString();
+    const QList<QByteArray>& rawHeaderList(request.rawHeaderList());
+    foreach (QByteArray rawHeader, rawHeaderList) {
+      qDebug() << request.rawHeader(rawHeader);
     }
 
     this->reply = this->manager->get(this->request);
@@ -128,7 +169,7 @@ void FileDownloader::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
     QByteArray byteArray = this->reply->readAll();
     this->file->write(byteArray);
 
-    emit updateProgress(int(bytesReceived));
+    emit updateProgress(double(bytesReceived));
 }
 
 void FileDownloader::downloadFinished()
@@ -145,7 +186,7 @@ void FileDownloader::downloadFinished()
             this->validRequest = false;
             this->currentMessage = "Selected file can't be downloaded.";
         }
-        else if (this->currentDownloadDetails->getLength() == int(finalSize)) {
+        else if (this->currentDownloadDetails->getLength() == this->currentDownloadDetails->getNumReceivedBytes()) {
             QString tmpFilename = this->currentDownloadDetails->getOutputFilename();
             int lastIdx = tmpFilename.lastIndexOf(".");
             QString finalFilename = tmpFilename.left(lastIdx);

@@ -63,7 +63,13 @@ void MainWindow::setDownloads(QJsonArray jsonArray)
         DownloadDetails *currentDetails = new DownloadDetails(jsonArray.at(i).toObject());
         if (currentDetails->getState() == DownloadDetails::DownloadState::NON_STARTED)
             currentDetails->setOutputFilename(this->settingsDialog->getDownloadsDirectory());
+/*
+        currentDetails->setState(DownloadDetails::DownloadState::PAUSED);
+        currentDetails->setAcceptRanges(true);
+        currentDetails->setNumReceivedBytes(210);
+*/
         addElementToDownload(currentDetails);
+        currentDetails->printData();
     }
 }
 
@@ -126,6 +132,7 @@ void MainWindow::saveCurrentDownloads()
 
 void MainWindow::on_actionRequest_triggered()
 {
+/*
     this->endpointRequester->requestFilesDetails(this->settingsDialog->getFilesUrl());
 
     if (this->endpointRequester->isValidRequest()) {
@@ -135,6 +142,24 @@ void MainWindow::on_actionRequest_triggered()
     else {
         showMessage("Something went wrong. Please verify the specified URL clicking on Settings and try again.", QMessageBox::Critical);
     }
+*/
+    QJsonArray jsonArray;
+
+    QJsonObject jsonObject;
+
+    jsonObject.insert("FileName", "Steinway-test");
+    jsonObject.insert("Length", "27915815056");
+    jsonObject.insert("BlobType", "vson");
+    jsonObject.insert("DownloadURI", "https://f002.backblazeb2.com/b2api/v2/b2_download_file_by_id?fileId=4_z745fdb04a46dc516733e0215_f211739e291fad6c0_d20200806_m025041_c002_v0001123_t0047");
+/*
+    jsonObject.insert("FileName", "2020-0805-195005-KEVIN-Virtual Sonics (Steinway-releases)");
+    jsonObject.insert("Length", "518");
+    jsonObject.insert("BlobType", "log");
+    jsonObject.insert("DownloadURI", "https://f002.backblazeb2.com/b2api/v2/b2_download_file_by_id?fileId=4_z745fdb04a46dc516733e0215_f109f01b82e02ecfb_d20200806_m053213_c002_v0001123_t0049");
+*/
+    jsonArray.push_back(jsonObject);
+
+    setDownloads(jsonArray);
 }
 
 void MainWindow::on_actionSettings_triggered()

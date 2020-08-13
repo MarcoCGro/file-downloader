@@ -6,7 +6,7 @@
 DownloadDetails::DownloadDetails(QJsonObject jsonObject)
 {
     this->filename = jsonObject["FileName"].toString();
-    this->length = jsonObject["Length"].toString().toInt();
+    this->length = jsonObject["Length"].toString().toDouble();
     this->blobType = jsonObject["BlobType"].toString();
     this->downloadURI = jsonObject["DownloadURI"].toString();
 
@@ -62,12 +62,12 @@ void DownloadDetails::setAcceptRanges(bool value)
     acceptRanges = value;
 }
 
-int DownloadDetails::getNumReceivedBytes() const
+double DownloadDetails::getNumReceivedBytes() const
 {
     return this->numReceivedBytes;
 }
 
-void DownloadDetails::setNumReceivedBytes(int value)
+void DownloadDetails::setNumReceivedBytes(double value)
 {
     this->numReceivedBytes = value;
 }
@@ -98,12 +98,12 @@ void DownloadDetails::setFilename(const QString &value)
     this->filename = value;
 }
 
-int DownloadDetails::getLength() const
+double DownloadDetails::getLength() const
 {
     return this->length;
 }
 
-void DownloadDetails::setLength(int value)
+void DownloadDetails::setLength(double value)
 {
     this->length = value;
 }
@@ -132,7 +132,7 @@ void DownloadDetails::printData()
 {
     qDebug(" ------------------------------------------------------- ");
     qDebug("     FileName: %s", this->filename.toStdString().data());
-    qDebug("       Length: %d", int(this->length));
+    qDebug("       Length: %f", this->length);
     qDebug("     BlobType: %s", this->blobType.toStdString().data());
     qDebug("  DownloadURI: %s", this->downloadURI.toStdString().data());
 

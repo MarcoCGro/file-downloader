@@ -51,7 +51,8 @@ void SettingsDialog::initialize()
 
     this->currentFilesUrl = DEFAULT_DOWNLOADS_URL;
     ui->filesUrlEdit->setText(this->currentFilesUrl);
-    this->currentDownloadsDirectory = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+    //this->currentDownloadsDirectory = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+    this->currentDownloadsDirectory = "C:\\Users\\Marco\\Documents\\workspace\\Altomobile\\src\\virtual-sonics\\test";
     ui->directoryEdit->setText(this->currentDownloadsDirectory);
 
     this->fileDialog.setDirectory(this->currentDownloadsDirectory);

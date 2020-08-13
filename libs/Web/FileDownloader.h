@@ -45,7 +45,7 @@ public:
     void resumeDownload();
 
 signals:
-    void updateProgress(int bytesReceived);
+    void updateProgress(double bytesReceived);
     void recoverProgress();
     void finished();
 

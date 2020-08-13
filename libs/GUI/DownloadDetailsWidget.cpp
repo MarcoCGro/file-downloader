@@ -60,8 +60,7 @@ void DownloadDetailsWidget::setValues(int widgetId, DownloadDetails *downloadDet
     ui->rateLabel->setText("0 bytes");
 
     double fileSize = this->downloadDetails->getLength();
-
-    ui->lengthLabel->setText(getBytesLabel(fileSize));
+    ui->lengthLabel->setText(QString::number(fileSize, 'f', 2) + " bytes");
     ui->progressBar->setRange(0, this->downloadDetails->getLength());
 }
 
@@ -99,7 +98,7 @@ void DownloadDetailsWidget::on_stateButton_pressed()
         openDownload();
 }
 
-void DownloadDetailsWidget::updateProgress(int bytesReceived)
+void DownloadDetailsWidget::updateProgress(double bytesReceived)
 {
     if (!ui->messagesLabel->isHidden())
         ui->messagesLabel->hide();
